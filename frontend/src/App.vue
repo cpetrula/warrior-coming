@@ -27,6 +27,7 @@
         <router-link to="/blogs">Blogs</router-link>
         <router-link to="/music">Music</router-link>
         <router-link to="/shop">Shop</router-link>
+        <router-link to="/admin">Admin</router-link>
       </div>
       
     </Drawer>
