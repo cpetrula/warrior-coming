@@ -6,7 +6,7 @@ import sermonRoutes from './routes/sermons.js'
 import { uploadsDir } from './config/multer.js'
 import { testConnection } from './config/database.js'
 
-var mysql      = require('mysql');
+import mysql from 'mysql';
 
 
 const __filename = fileURLToPath(import.meta.url)
