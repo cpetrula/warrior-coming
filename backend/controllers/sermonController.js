@@ -7,7 +7,7 @@ class SermonController {
    */
   async getAllSermons(req, res) {
     try {
-      const sermons = Sermon.getAll()
+      const sermons = await Sermon.getAll()
       res.json(sermons)
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch sermons' })
@@ -19,7 +19,7 @@ class SermonController {
    */
   async getSermonById(req, res) {
     try {
-      const sermon = Sermon.getById(req.params.id)
+      const sermon = await Sermon.getById(req.params.id)
       if (!sermon) {
         return res.status(404).json({ error: 'Sermon not found' })
       }
@@ -52,7 +52,7 @@ class SermonController {
         imageFile: req.files.imageFile ? req.files.imageFile[0].filename : null
       }
 
-      const sermon = Sermon.create(sermonData)
+      const sermon = await Sermon.create(sermonData)
       res.status(201).json(sermon)
     } catch (error) {
       res.status(500).json({ error: 'Failed to create sermon' })
@@ -87,7 +87,7 @@ class SermonController {
         }
       }
 
-      const updatedSermon = Sermon.update(id, updateData, uploadsDir)
+      const updatedSermon = await Sermon.update(id, updateData, uploadsDir)
       
       if (!updatedSermon) {
         return res.status(404).json({ error: 'Sermon not found' })
@@ -106,7 +106,7 @@ class SermonController {
     try {
       const { sermonIds } = req.body
       
-      Sermon.reorder(sermonIds)
+      await Sermon.reorder(sermonIds)
       res.json({ success: true })
     } catch (error) {
       res.status(500).json({ error: 'Failed to reorder sermons' })
@@ -118,7 +118,7 @@ class SermonController {
    */
   async deleteSermon(req, res) {
     try {
-      const deletedSermon = Sermon.delete(req.params.id, uploadsDir)
+      const deletedSermon = await Sermon.delete(req.params.id, uploadsDir)
       
       if (!deletedSermon) {
         return res.status(404).json({ error: 'Sermon not found' })
