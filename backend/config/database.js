@@ -2,9 +2,9 @@ import mysql from 'mysql2/promise'
 
 // Database configuration
 const dbConfig = {
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
+  host: process.env.DB_HOST || '192.250.227.239',
+  user: process.env.DB_USER || 'warriorc_admindb',
+  password: process.env.DB_PASSWORD || 'StayFit2025!',
   database: process.env.DB_NAME || 'warriorc_db',
   port: process.env.DB_PORT || 3306,
 }
