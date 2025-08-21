@@ -130,7 +130,7 @@
           @reorder="updateOrder"
         >
           <template #item="{ item: sermon, index }">
-            <div class="sermon-item flex items-center justify-between p-4 border rounded">
+            <div class="sermon-item flex items-center justify-between p-4 border rounded w-full">
               <div class="flex items-center space-x-4">
                 <div v-if="sermon.imageFile" class="sermon-image">
                   <Image 
@@ -146,11 +146,11 @@
                 </div>
                 
                 <div class="sermon-details flex-1">
-                  <h3 class="font-bold text-lg">{{ sermon.title }}</h3>
+                  <h3 class="font-bold text-lg text-black">{{ sermon.title }}</h3>
                   <p class="text-sm text-gray-600">{{ formatDate(sermon.date) }}</p>
-                  <p v-if="sermon.description" class="text-sm text-gray-500 mt-1">
-                    {{ sermon.description.substring(0, 100) }}{{ sermon.description.length > 100 ? '...' : '' }}
-                  </p>
+                  <!-- <p v-if="sermon.description" class="text-sm text-gray-500 mt-1" v-html="sermon.description.substring(0, 100) + sermon.description.length > 100 ? '...' : ''"> -->
+                    
+                
                   <div class="mt-2">
                     <audio controls class="w-full max-w-md">
                       <source :src="`/uploads/${sermon.audioFile}`" type="audio/mpeg">
@@ -164,7 +164,7 @@
                 <Button 
                   icon="pi pi-pencil" 
                   severity="secondary"
-                  text
+                  rounded
                   @click="startEdit(sermon)"
                   :disabled="editing !== null"
                   title="Edit sermon"
@@ -172,7 +172,7 @@
                 <Button 
                   icon="pi pi-trash" 
                   severity="danger"
-                  text
+                  rounded
                   @click="deleteSermon(sermon.id)"
                   :loading="deleting === sermon.id"
                   title="Delete sermon"
