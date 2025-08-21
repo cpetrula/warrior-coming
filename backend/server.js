@@ -6,6 +6,23 @@ import sermonRoutes from './routes/sermons.js'
 import { uploadsDir } from './config/multer.js'
 import { testConnection } from './config/database.js'
 
+var mysql      = require('mysql');
+var connection = mysql.createConnection({
+    host: 'localhost',
+    database: 'warriorc_db',
+    user: 'warriorc_admindb',
+    password: 'StayFit2025!',
+});
+
+connection.connect(function(err) {
+    if (err) {
+        console.error('Error connecting: ' + err.stack);
+        return;
+    }
+
+    console.log('Connected as id ' + connection.threadId);
+});
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
