@@ -60,6 +60,46 @@ class SermonController {
   }
 
   /**
+   * Update existing sermon
+   */
+  async updateSermon(req, res) {
+    try {
+      const { id } = req.params
+      const { title, date, description } = req.body
+      
+      if (!title || !date) {
+        return res.status(400).json({ error: 'Title and date are required' })
+      }
+
+      const updateData = {
+        title,
+        date,
+        description
+      }
+
+      // Handle file updates if provided
+      if (req.files) {
+        if (req.files.audioFile) {
+          updateData.audioFile = req.files.audioFile[0].filename
+        }
+        if (req.files.imageFile) {
+          updateData.imageFile = req.files.imageFile[0].filename
+        }
+      }
+
+      const updatedSermon = Sermon.update(id, updateData, uploadsDir)
+      
+      if (!updatedSermon) {
+        return res.status(404).json({ error: 'Sermon not found' })
+      }
+
+      res.json(updatedSermon)
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to update sermon' })
+    }
+  }
+
+  /**
    * Update sermon order
    */
   async reorderSermons(req, res) {

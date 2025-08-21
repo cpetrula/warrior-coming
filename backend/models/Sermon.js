@@ -55,6 +55,40 @@ class Sermon {
   }
 
   /**
+   * Update an existing sermon
+   */
+  update(id, updateData, uploadsDir) {
+    const sermon = this.sermons.find(s => s.id === id)
+    if (!sermon) {
+      return null
+    }
+
+    // Handle file cleanup if new files are uploaded
+    if (updateData.audioFile && sermon.audioFile !== updateData.audioFile) {
+      const oldAudioPath = path.join(uploadsDir, sermon.audioFile)
+      if (fs.existsSync(oldAudioPath)) {
+        fs.unlinkSync(oldAudioPath)
+      }
+    }
+
+    if (updateData.imageFile && sermon.imageFile !== updateData.imageFile) {
+      const oldImagePath = path.join(uploadsDir, sermon.imageFile)
+      if (fs.existsSync(oldImagePath)) {
+        fs.unlinkSync(oldImagePath)
+      }
+    }
+
+    // Update sermon properties
+    if (updateData.title !== undefined) sermon.title = updateData.title
+    if (updateData.date !== undefined) sermon.date = updateData.date
+    if (updateData.description !== undefined) sermon.description = updateData.description
+    if (updateData.audioFile !== undefined) sermon.audioFile = updateData.audioFile
+    if (updateData.imageFile !== undefined) sermon.imageFile = updateData.imageFile
+
+    return sermon
+  }
+
+  /**
    * Delete sermon by ID and remove associated files
    */
   delete(id, uploadsDir) {
