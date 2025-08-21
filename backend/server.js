@@ -14,10 +14,10 @@ const PORT = 3000
 // Middleware
 app.use(cors())
 app.use(express.json())
-app.use(express.static('frontend/dist'))
+app.use(express.static(path.join(__dirname, '..', 'frontend/dist')))
 
 // Create uploads directory if it doesn't exist
-const uploadsDir = path.join(__dirname, 'uploads')
+const uploadsDir = path.join(__dirname, '..', 'uploads')
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true })
 }
@@ -149,7 +149,7 @@ app.delete('/api/sermons/:id', (req, res) => {
 
 // Fallback to index.html for SPA routing
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend/dist', 'index.html'))
+  res.sendFile(path.join(__dirname, '..', 'frontend/dist', 'index.html'))
 })
 
 app.listen(PORT, () => {
