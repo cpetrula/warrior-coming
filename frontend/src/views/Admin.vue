@@ -131,7 +131,7 @@
         >
           <template #item="{ item: sermon, index }">
             <div class="sermon-item flex items-center justify-between p-4 border rounded w-full">
-              <div class="flex items-center space-x-4">
+              <div class="flex items-center space-x-4 w-100">
                 <div v-if="sermon.imageFile" class="sermon-image">
                   <Image 
                     :src="`/uploads/${sermon.imageFile}`" 
