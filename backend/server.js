@@ -4,6 +4,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import sermonRoutes from './routes/sermons.js'
 import { uploadsDir } from './config/multer.js'
+import { testConnection } from './config/database.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -27,6 +28,12 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'frontend/dist', 'index.html'))
 })
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server is running on http://localhost:${PORT}`)
+  
+  // Test database connection
+  const dbConnected = await testConnection()
+  if (!dbConnected) {
+    console.warn('Warning: Database connection failed. Some features may not work properly.')
+  }
 })
