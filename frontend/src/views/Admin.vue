@@ -4,9 +4,20 @@
     
     <!-- Upload Form -->
     <Card class="mb-6">
-      <template #title>Upload New Sermon</template>
+      <template #title>
+        <div class="flex justify-between items-center">
+          <span>Upload New Sermon</span>
+          <Button 
+            :icon="showUploadForm ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
+            @click="showUploadForm = !showUploadForm"
+            text
+            :aria-label="showUploadForm ? 'Collapse upload form' : 'Expand upload form'"
+          />
+        </div>
+      </template>
       <template #content>
-        <form @submit.prevent="uploadSermon" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div v-show="showUploadForm">
+          <form @submit.prevent="uploadSermon" class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="field">
             <label for="title" class="block text-sm font-medium mb-2">Title *</label>
             <InputText 
@@ -85,6 +96,7 @@
             />
           </div>
         </form>
+        </div>
       </template>
     </Card>
     
@@ -148,13 +160,22 @@
                 </div>
               </div>
               
-              <div class="sermon-actions">
+              <div class="sermon-actions flex space-x-2">
+                <Button 
+                  icon="pi pi-pencil" 
+                  severity="secondary"
+                  text
+                  @click="startEdit(sermon)"
+                  :disabled="editing !== null"
+                  title="Edit sermon"
+                />
                 <Button 
                   icon="pi pi-trash" 
                   severity="danger"
                   text
                   @click="deleteSermon(sermon.id)"
                   :loading="deleting === sermon.id"
+                  title="Delete sermon"
                 />
               </div>
             </div>
@@ -162,6 +183,95 @@
         </OrderList>
       </template>
     </Card>
+
+    <!-- Edit Sermon Dialog -->
+    <Dialog 
+      v-model:visible="showEditDialog" 
+      modal 
+      header="Edit Sermon" 
+      :style="{ width: '50rem' }" 
+      :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
+    >
+      <form @submit.prevent="updateSermon" class="grid grid-cols-1 gap-4">
+        <div class="field">
+          <label for="editTitle" class="block text-sm font-medium mb-2">Title *</label>
+          <InputText 
+            id="editTitle"
+            v-model="editingSermon.title" 
+            placeholder="Enter sermon title"
+            class="w-full"
+            :class="{ 'p-invalid': editErrors.title }"
+            required 
+          />
+          <small v-if="editErrors.title" class="p-error">{{ editErrors.title }}</small>
+        </div>
+        
+        <div class="field">
+          <label for="editDate" class="block text-sm font-medium mb-2">Date *</label>
+          <Calendar 
+            id="editDate"
+            v-model="editingSermon.date" 
+            dateFormat="yy-mm-dd"
+            placeholder="Select date"
+            class="w-full"
+            :class="{ 'p-invalid': editErrors.date }"
+            required
+          />
+          <small v-if="editErrors.date" class="p-error">{{ editErrors.date }}</small>
+        </div>
+        
+        <div class="field">
+          <label for="editDescription" class="block text-sm font-medium mb-2">Description</label>
+          <Editor 
+            id="editDescription"
+            v-model="editingSermon.description" 
+            editorStyle="height: 200px"
+            class="w-full"
+          />
+        </div>
+        
+        <div class="field">
+          <label for="editAudioFile" class="block text-sm font-medium mb-2">Audio File (Optional - leave empty to keep current)</label>
+          <FileUpload 
+            id="editAudioFile"
+            mode="basic" 
+            accept="audio/*"
+            :maxFileSize="100000000"
+            customUpload
+            @select="onEditAudioSelect"
+            chooseLabel="Choose New Audio File"
+          />
+        </div>
+        
+        <div class="field">
+          <label for="editImageFile" class="block text-sm font-medium mb-2">Image (Optional - leave empty to keep current)</label>
+          <FileUpload 
+            id="editImageFile"
+            mode="basic" 
+            accept="image/*"
+            :maxFileSize="10000000"
+            customUpload
+            @select="onEditImageSelect"
+            chooseLabel="Choose New Image"
+          />
+        </div>
+      </form>
+      
+      <template #footer>
+        <Button 
+          label="Cancel" 
+          icon="pi pi-times" 
+          @click="cancelEdit" 
+          text 
+        />
+        <Button 
+          label="Update" 
+          icon="pi pi-check" 
+          @click="updateSermon"
+          :loading="uploading"
+        />
+      </template>
+    </Dialog>
   </div>
 </template>
 
@@ -177,6 +287,7 @@ import Button from 'primevue/button'
 import OrderList from 'primevue/orderlist'
 import Image from 'primevue/image'
 import ProgressSpinner from 'primevue/progressspinner'
+import Dialog from 'primevue/dialog'
 
 interface Sermon {
   id: string
@@ -194,6 +305,9 @@ const sermons = ref<Sermon[]>([])
 const loading = ref(false)
 const uploading = ref(false)
 const deleting = ref<string | null>(null)
+const editing = ref<string | null>(null)
+const showUploadForm = ref(false)
+const showEditDialog = ref(false)
 
 const newSermon = ref({
   title: '',
@@ -201,13 +315,27 @@ const newSermon = ref({
   description: ''
 })
 
+const editingSermon = ref({
+  id: '',
+  title: '',
+  date: null as Date | null,
+  description: ''
+})
+
 const selectedAudioFile = ref<File | null>(null)
 const selectedImageFile = ref<File | null>(null)
+const selectedEditAudioFile = ref<File | null>(null)
+const selectedEditImageFile = ref<File | null>(null)
 
 const errors = ref({
   title: '',
   date: '',
   audioFile: ''
+})
+
+const editErrors = ref({
+  title: '',
+  date: ''
 })
 
 // Computed properties
@@ -326,6 +454,86 @@ const deleteSermon = async (id: string) => {
 
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString()
+}
+
+const onEditAudioSelect = (event: any) => {
+  selectedEditAudioFile.value = event.files[0]
+}
+
+const onEditImageSelect = (event: any) => {
+  selectedEditImageFile.value = event.files[0]
+}
+
+const startEdit = (sermon: Sermon) => {
+  editing.value = sermon.id
+  showEditDialog.value = true
+  editingSermon.value = {
+    id: sermon.id,
+    title: sermon.title,
+    date: new Date(sermon.date),
+    description: sermon.description || ''
+  }
+  selectedEditAudioFile.value = null
+  selectedEditImageFile.value = null
+  editErrors.value = { title: '', date: '' }
+}
+
+const cancelEdit = () => {
+  editing.value = null
+  showEditDialog.value = false
+  editingSermon.value = { id: '', title: '', date: null, description: '' }
+  selectedEditAudioFile.value = null
+  selectedEditImageFile.value = null
+  editErrors.value = { title: '', date: '' }
+}
+
+const validateEditForm = () => {
+  editErrors.value = { title: '', date: '' }
+  
+  if (!editingSermon.value.title.trim()) {
+    editErrors.value.title = 'Title is required'
+  }
+  
+  if (!editingSermon.value.date) {
+    editErrors.value.date = 'Date is required'
+  }
+  
+  return Object.values(editErrors.value).every(error => error === '')
+}
+
+const updateSermon = async () => {
+  if (!validateEditForm()) return
+  
+  uploading.value = true
+  
+  try {
+    const formData = new FormData()
+    formData.append('title', editingSermon.value.title)
+    formData.append('date', editingSermon.value.date!.toISOString().split('T')[0])
+    formData.append('description', editingSermon.value.description)
+    
+    if (selectedEditAudioFile.value) {
+      formData.append('audioFile', selectedEditAudioFile.value)
+    }
+    
+    if (selectedEditImageFile.value) {
+      formData.append('imageFile', selectedEditImageFile.value)
+    }
+    
+    await axios.put(`/api/sermons/${editingSermon.value.id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    
+    cancelEdit()
+    await loadSermons()
+  } catch (error) {
+    console.error('Error updating sermon:', error)
+    alert('Failed to update sermon. Please try again.')
+  } finally {
+    uploading.value = false
+  }
 }
 
 // Lifecycle

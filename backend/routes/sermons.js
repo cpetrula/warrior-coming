@@ -16,6 +16,12 @@ router.post('/', upload.fields([
   { name: 'imageFile', maxCount: 1 }
 ]), sermonController.createSermon)
 
+// Update existing sermon
+router.put('/:id', upload.fields([
+  { name: 'audioFile', maxCount: 1 },
+  { name: 'imageFile', maxCount: 1 }
+]), sermonController.updateSermon)
+
 // Update sermon order
 router.patch('/reorder', sermonController.reorderSermons)
 
