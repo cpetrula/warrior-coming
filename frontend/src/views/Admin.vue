@@ -36,15 +36,13 @@
           
           <div class="field md:col-span-2">
             <label for="description" class="block text-sm font-medium mb-2">Description</label>
-            <Textarea 
+            <Editor 
               id="description"
               v-model="newSermon.description" 
-              placeholder="Enter sermon description (optional)"
-              rows="4"
+              editorStyle="height: 320px"
               class="w-full"
-              :maxlength="5000"
             />
-            <small class="text-gray-500">{{ newSermon.description?.length || 0 }}/5000 characters</small>
+            <small class="text-gray-500">Rich text editor for sermon description</small>
           </div>
           
           <div class="field">
@@ -173,7 +171,7 @@ import axios from 'axios'
 import Card from 'primevue/card'
 import InputText from 'primevue/inputtext'
 import Calendar from 'primevue/calendar'
-import Textarea from 'primevue/textarea'
+import Editor from 'primevue/editor'
 import FileUpload from 'primevue/fileupload'
 import Button from 'primevue/button'
 import OrderList from 'primevue/orderlist'
