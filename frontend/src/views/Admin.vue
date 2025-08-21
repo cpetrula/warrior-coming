@@ -36,15 +36,14 @@
           
           <div class="field md:col-span-2">
             <label for="description" class="block text-sm font-medium mb-2">Description</label>
-            <Textarea 
+            <Editor 
               id="description"
               v-model="newSermon.description" 
               placeholder="Enter sermon description (optional)"
-              rows="4"
+              editorStyle="height: 200px"
               class="w-full"
-              :maxlength="5000"
             />
-            <small class="text-gray-500">{{ newSermon.description?.length || 0 }}/5000 characters</small>
+            <small class="text-gray-500">{{ getTextLength(newSermon.description) }}/5000 characters</small>
           </div>
           
           <div class="field">
@@ -142,10 +141,21 @@
                     {{ sermon.description.substring(0, 100) }}{{ sermon.description.length > 100 ? '...' : '' }}
                   </p>
                   <div class="mt-2">
-                    <audio controls class="w-full max-w-md">
-                      <source :src="`/uploads/${sermon.audioFile}`" type="audio/mpeg">
-                      Your browser does not support the audio element.
-                    </audio>
+                    <div class="audio-player-wrapper bg-gray-100 p-3 rounded-lg">
+                      <audio 
+                        controls 
+                        class="w-full max-w-md sermon-audio"
+                        preload="metadata"
+                        :data-title="sermon.title"
+                      >
+                        <source :src="`/uploads/${sermon.audioFile}`" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                      </audio>
+                      <div class="audio-info text-xs text-gray-600 mt-1">
+                        <i class="pi pi-volume-up mr-1"></i>
+                        Click to play • {{ sermon.title }}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -173,7 +183,7 @@ import axios from 'axios'
 import Card from 'primevue/card'
 import InputText from 'primevue/inputtext'
 import Calendar from 'primevue/calendar'
-import Textarea from 'primevue/textarea'
+import Editor from 'primevue/editor'
 import FileUpload from 'primevue/fileupload'
 import Button from 'primevue/button'
 import OrderList from 'primevue/orderlist'
@@ -330,6 +340,15 @@ const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString()
 }
 
+// Helper function to get text length from HTML content
+const getTextLength = (htmlContent: string) => {
+  if (!htmlContent) return 0
+  // Create a temporary div to extract text content from HTML
+  const tempDiv = document.createElement('div')
+  tempDiv.innerHTML = htmlContent
+  return tempDiv.textContent?.length || 0
+}
+
 // Lifecycle
 onMounted(() => {
   loadSermons()
@@ -364,5 +383,25 @@ onMounted(() => {
 .p-error {
   color: #ef4444;
   font-size: 0.875rem;
+}
+
+.audio-player-wrapper {
+  border: 1px solid #d1d5db;
+  background: linear-gradient(to bottom, #f9fafb, #f3f4f6);
+}
+
+.sermon-audio {
+  border-radius: 4px;
+}
+
+.sermon-audio:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.audio-info {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
 }
 </style>
