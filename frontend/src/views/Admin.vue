@@ -46,14 +46,15 @@
           </div>
           
           <div class="field md:col-span-2">
-            <label for="description" class="block text-sm font-medium mb-2">Description</label>
-            <Editor 
+            <label for="description" class="block text-sm font-medium mb-2">Description (3-4 sentences)</label>
+            <Textarea 
               id="description"
               v-model="newSermon.description" 
-              editorStyle="height: 320px"
+              placeholder="Enter a brief description of the sermon (3-4 sentences)"
+              rows="4"
               class="w-full"
             />
-            <small class="text-gray-500">Rich text editor for sermon description</small>
+            <small class="text-gray-500">Brief description limited to 3-4 sentences</small>
           </div>
           
           <div class="field">
@@ -83,6 +84,20 @@
               customUpload
               @select="onImageSelect"
               chooseLabel="Choose Image"
+            />
+          </div>
+
+          <div class="field">
+            <label for="notesFile" class="block text-sm font-medium mb-2">Sermon Notes PDF (Optional)</label>
+            <FileUpload 
+              id="notesFile"
+              ref="notesUpload"
+              mode="basic" 
+              accept="application/pdf"
+              :maxFileSize="50000000"
+              customUpload
+              @select="onNotesSelect"
+              chooseLabel="Choose PDF Notes"
             />
           </div>
           
@@ -148,8 +163,14 @@
                 <div class="sermon-details flex-1">
                   <h3 class="font-bold text-lg text-black">{{ sermon.title }}</h3>
                   <p class="text-sm text-gray-600">{{ formatDate(sermon.date) }}</p>
-                  <!-- <p v-if="sermon.description" class="text-sm text-gray-500 mt-1" v-html="sermon.description.substring(0, 100) + sermon.description.length > 100 ? '...' : ''"> -->
-                    
+                  <p v-if="sermon.description" class="text-sm text-gray-500 mt-1">
+                    {{ sermon.description.length > 100 ? sermon.description.substring(0, 100) + '...' : sermon.description }}
+                  </p>
+                  <div v-if="sermon.notesFile" class="mt-1">
+                    <a :href="`/uploads/${sermon.notesFile}`" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm">
+                      <i class="pi pi-file-pdf mr-1"></i>View Sermon Notes (PDF)
+                    </a>
+                  </div>
                 
                   <div class="mt-2">
                     <audio controls class="w-full max-w-md">
@@ -221,11 +242,12 @@
         </div>
         
         <div class="field">
-          <label for="editDescription" class="block text-sm font-medium mb-2">Description</label>
-          <Editor 
+          <label for="editDescription" class="block text-sm font-medium mb-2">Description (3-4 sentences)</label>
+          <Textarea 
             id="editDescription"
             v-model="editingSermon.description" 
-            editorStyle="height: 200px"
+            placeholder="Enter a brief description of the sermon (3-4 sentences)"
+            rows="4"
             class="w-full"
           />
         </div>
@@ -255,6 +277,19 @@
             chooseLabel="Choose New Image"
           />
         </div>
+
+        <div class="field">
+          <label for="editNotesFile" class="block text-sm font-medium mb-2">Sermon Notes PDF (Optional - leave empty to keep current)</label>
+          <FileUpload 
+            id="editNotesFile"
+            mode="basic" 
+            accept="application/pdf"
+            :maxFileSize="50000000"
+            customUpload
+            @select="onEditNotesSelect"
+            chooseLabel="Choose New PDF Notes"
+          />
+        </div>
       </form>
       
       <template #footer>
@@ -281,7 +316,7 @@ import axios from 'axios'
 import Card from 'primevue/card'
 import InputText from 'primevue/inputtext'
 import Calendar from 'primevue/calendar'
-import Editor from 'primevue/editor'
+import Textarea from 'primevue/textarea'
 import FileUpload from 'primevue/fileupload'
 import Button from 'primevue/button'
 import OrderList from 'primevue/orderlist'
@@ -296,6 +331,7 @@ interface Sermon {
   description?: string
   audioFile: string
   imageFile?: string
+  notesFile?: string
   order: number
   createdAt: string
 }
@@ -324,8 +360,10 @@ const editingSermon = ref({
 
 const selectedAudioFile = ref<File | null>(null)
 const selectedImageFile = ref<File | null>(null)
+const selectedNotesFile = ref<File | null>(null)
 const selectedEditAudioFile = ref<File | null>(null)
 const selectedEditImageFile = ref<File | null>(null)
+const selectedEditNotesFile = ref<File | null>(null)
 
 const errors = ref({
   title: '',
@@ -373,6 +411,10 @@ const onImageSelect = (event: any) => {
   selectedImageFile.value = event.files[0]
 }
 
+const onNotesSelect = (event: any) => {
+  selectedNotesFile.value = event.files[0]
+}
+
 const uploadSermon = async () => {
   if (!validateForm()) return
   
@@ -389,6 +431,10 @@ const uploadSermon = async () => {
       formData.append('imageFile', selectedImageFile.value)
     }
     
+    if (selectedNotesFile.value) {
+      formData.append('notesFile', selectedNotesFile.value)
+    }
+    
     await axios.post('/api/sermons', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
@@ -399,12 +445,15 @@ const uploadSermon = async () => {
     newSermon.value = { title: '', date: null, description: '' }
     selectedAudioFile.value = null
     selectedImageFile.value = null
+    selectedNotesFile.value = null
     
     // Clear file uploads
     const audioUpload = document.querySelector('#audioFile input') as HTMLInputElement
     const imageUpload = document.querySelector('#imageFile input') as HTMLInputElement
+    const notesUpload = document.querySelector('#notesFile input') as HTMLInputElement
     if (audioUpload) audioUpload.value = ''
     if (imageUpload) imageUpload.value = ''
+    if (notesUpload) notesUpload.value = ''
     
     await loadSermons()
   } catch (error) {
@@ -464,6 +513,10 @@ const onEditImageSelect = (event: any) => {
   selectedEditImageFile.value = event.files[0]
 }
 
+const onEditNotesSelect = (event: any) => {
+  selectedEditNotesFile.value = event.files[0]
+}
+
 const startEdit = (sermon: Sermon) => {
   editing.value = sermon.id
   showEditDialog.value = true
@@ -475,6 +528,7 @@ const startEdit = (sermon: Sermon) => {
   }
   selectedEditAudioFile.value = null
   selectedEditImageFile.value = null
+  selectedEditNotesFile.value = null
   editErrors.value = { title: '', date: '' }
 }
 
@@ -484,6 +538,7 @@ const cancelEdit = () => {
   editingSermon.value = { id: '', title: '', date: null, description: '' }
   selectedEditAudioFile.value = null
   selectedEditImageFile.value = null
+  selectedEditNotesFile.value = null
   editErrors.value = { title: '', date: '' }
 }
 
@@ -518,6 +573,10 @@ const updateSermon = async () => {
     
     if (selectedEditImageFile.value) {
       formData.append('imageFile', selectedEditImageFile.value)
+    }
+    
+    if (selectedEditNotesFile.value) {
+      formData.append('notesFile', selectedEditNotesFile.value)
     }
     
     await axios.put(`/api/sermons/${editingSermon.value.id}`, formData, {
