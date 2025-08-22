@@ -13,13 +13,15 @@ router.get('/:id', sermonController.getSermonById)
 // Create new sermon
 router.post('/', upload.fields([
   { name: 'audioFile', maxCount: 1 },
-  { name: 'imageFile', maxCount: 1 }
+  { name: 'imageFile', maxCount: 1 },
+  { name: 'notesFile', maxCount: 1 }
 ]), sermonController.createSermon)
 
 // Update existing sermon
 router.put('/:id', upload.fields([
   { name: 'audioFile', maxCount: 1 },
-  { name: 'imageFile', maxCount: 1 }
+  { name: 'imageFile', maxCount: 1 },
+  { name: 'notesFile', maxCount: 1 }
 ]), sermonController.updateSermon)
 
 // Update sermon order
