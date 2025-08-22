@@ -79,13 +79,13 @@
                   class="rounded"
                 />
                 <div>
-                  <h2 class="text-xl font-bold text-gray-900">{{ selectedSermon.title }}</h2>
-                  <p class="text-gray-600">{{ formatDate(selectedSermon.date) }}</p>
+                  <h2 class="text-xl font-bold text-gray-200">{{ selectedSermon.title }}</h2>
+                  <p class="text-gray-400">{{ formatDate(selectedSermon.date) }}</p>
                 </div>
               </div>
             </template>
             <template #content>
-              <p v-if="selectedSermon.description" class="text-gray-700">
+              <p v-if="selectedSermon.description" class="text-gray-300">
                 {{ selectedSermon.description }}
               </p>
             </template>
