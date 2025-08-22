@@ -60,6 +60,7 @@ The application creates the following table:
 - `description` - Sermon description (TEXT)
 - `audio_file` - Audio file name (VARCHAR 255, NOT NULL)
 - `image_file` - Image file name (VARCHAR 255)
+- `notes_file` - Sermon notes PDF file name (VARCHAR 255)
 - `sermon_order` - Display order (INT, default 0)
 - `created_at` - Creation timestamp
 - `updated_at` - Last update timestamp

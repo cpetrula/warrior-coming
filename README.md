@@ -4,9 +4,9 @@ A web application for managing and displaying sermon content with audio playback
 
 ## Features
 
-- **Sermon Management**: Upload, edit, and organize sermons with audio files and optional images
+- **Sermon Management**: Upload, edit, and organize sermons with audio files, optional images, and PDF notes
 - **Audio Player**: Built-in audio player with playback controls
-- **Admin Interface**: Administrative dashboard for content management
+- **Admin Interface**: Administrative dashboard for content management with PDF notes support
 - **MySQL Database**: Persistent storage using MySQL database
 
 ## Setup

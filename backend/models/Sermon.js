@@ -37,7 +37,7 @@ class Sermon {
   async getAll() {
     try {
       const [rows] = await pool.execute(
-        'SELECT id, title, date, description, audio_file as audioFile, image_file as imageFile, sermon_order as `order`, created_at as createdAt FROM sermons ORDER BY sermon_order ASC'
+        'SELECT id, title, date, description, audio_file as audioFile, image_file as imageFile, notes_file as notesFile, sermon_order as `order`, created_at as createdAt FROM sermons ORDER BY sermon_order ASC'
       )
       return rows.map(row => ({
         ...row,
@@ -56,7 +56,7 @@ class Sermon {
   async getById(id) {
     try {
       const [rows] = await pool.execute(
-        'SELECT id, title, date, description, audio_file as audioFile, image_file as imageFile, sermon_order as `order`, created_at as createdAt FROM sermons WHERE id = ?',
+        'SELECT id, title, date, description, audio_file as audioFile, image_file as imageFile, notes_file as notesFile, sermon_order as `order`, created_at as createdAt FROM sermons WHERE id = ?',
         [id]
       )
       if (rows.length === 0) return null
@@ -76,7 +76,7 @@ class Sermon {
   /**
    * Create a new sermon
    */
-  async create({ title, date, description, audioFile, imageFile }) {
+  async create({ title, date, description, audioFile, imageFile, notesFile }) {
     try {
       // Get the next order number
       const [maxOrderResult] = await pool.execute(
@@ -85,8 +85,8 @@ class Sermon {
       const nextOrder = maxOrderResult[0].nextOrder
 
       const [result] = await pool.execute(
-        'INSERT INTO sermons (title, date, description, audio_file, image_file, sermon_order) VALUES (?, ?, ?, ?, ?, ?)',
-        [title, date, description || '', audioFile, imageFile || null, nextOrder]
+        'INSERT INTO sermons (title, date, description, audio_file, image_file, notes_file, sermon_order) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [title, date, description || '', audioFile, imageFile || null, notesFile || null, nextOrder]
       )
 
       // Return the created sermon
@@ -142,6 +142,13 @@ class Sermon {
         }
       }
 
+      if (updateData.notesFile && currentSermon.notesFile !== updateData.notesFile) {
+        const oldNotesPath = path.join(uploadsDir, currentSermon.notesFile)
+        if (fs.existsSync(oldNotesPath)) {
+          fs.unlinkSync(oldNotesPath)
+        }
+      }
+
       // Build update query dynamically based on provided fields
       const updates = []
       const values = []
@@ -165,6 +172,10 @@ class Sermon {
       if (updateData.imageFile !== undefined) {
         updates.push('image_file = ?')
         values.push(updateData.imageFile)
+      }
+      if (updateData.notesFile !== undefined) {
+        updates.push('notes_file = ?')
+        values.push(updateData.notesFile)
       }
 
       if (updates.length > 0) {
@@ -206,6 +217,13 @@ class Sermon {
         const imagePath = path.join(uploadsDir, sermon.imageFile)
         if (fs.existsSync(imagePath)) {
           fs.unlinkSync(imagePath)
+        }
+      }
+
+      if (sermon.notesFile) {
+        const notesPath = path.join(uploadsDir, sermon.notesFile)
+        if (fs.existsSync(notesPath)) {
+          fs.unlinkSync(notesPath)
         }
       }
 

@@ -49,7 +49,8 @@ class SermonController {
         date,
         description,
         audioFile: req.files.audioFile[0].filename,
-        imageFile: req.files.imageFile ? req.files.imageFile[0].filename : null
+        imageFile: req.files.imageFile ? req.files.imageFile[0].filename : null,
+        notesFile: req.files.notesFile ? req.files.notesFile[0].filename : null
       }
 
       const sermon = await Sermon.create(sermonData)
@@ -84,6 +85,9 @@ class SermonController {
         }
         if (req.files.imageFile) {
           updateData.imageFile = req.files.imageFile[0].filename
+        }
+        if (req.files.notesFile) {
+          updateData.notesFile = req.files.notesFile[0].filename
         }
       }
 

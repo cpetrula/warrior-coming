@@ -62,3 +62,6 @@ vite.config.ts.timestamp-*
 # Uploaded files
 uploads/
 
+# Build artifacts
+frontend/dist/
+
