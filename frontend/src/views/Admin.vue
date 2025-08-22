@@ -140,13 +140,13 @@
         <OrderList 
           v-else
           v-model="sermons" 
-          listStyle="height:auto"
+          listStyle="max-height:100%;"
           dataKey="id"
           @reorder="updateOrder"
         >
           <template #item="{ item: sermon, index }">
             <div class="sermon-item flex items-center justify-between p-4 border rounded w-full">
-              <div class="flex items-center space-x-4 w-100">
+              <div class="flex items-center space-x-4">
                 <div v-if="sermon.imageFile" class="sermon-image">
                   <Image 
                     :src="`/uploads/${sermon.imageFile}`" 
@@ -163,9 +163,9 @@
                 <div class="sermon-details flex-1">
                   <h3 class="font-bold text-lg text-black">{{ sermon.title }}</h3>
                   <p class="text-sm text-gray-600">{{ formatDate(sermon.date) }}</p>
-                  <p v-if="sermon.description" class="text-sm text-gray-500 mt-1">
+                  <div v-if="sermon.description" class="text-sm text-gray-500 mt-1">
                     {{ sermon.description.length > 100 ? sermon.description.substring(0, 100) + '...' : sermon.description }}
-                  </p>
+                  </div>
                   <div v-if="sermon.notesFile" class="mt-1">
                     <a :href="`/uploads/${sermon.notesFile}`" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm">
                       <i class="pi pi-file-pdf mr-1"></i>View Sermon Notes (PDF)
@@ -629,5 +629,8 @@ onMounted(() => {
 .p-error {
   color: #ef4444;
   font-size: 0.875rem;
+}
+.p-listbox-list-container {
+    overflow: none;
 }
 </style>
