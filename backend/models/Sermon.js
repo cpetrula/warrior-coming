@@ -128,21 +128,21 @@ class Sermon {
       }
 
       // Handle file cleanup if new files are uploaded
-      if (updateData.audioFile && currentSermon.audioFile !== updateData.audioFile) {
+      if (updateData.audioFile && currentSermon.audioFile !== updateData.audioFile && currentSermon.audioFile) {
         const oldAudioPath = path.join(uploadsDir, currentSermon.audioFile)
         if (fs.existsSync(oldAudioPath)) {
           fs.unlinkSync(oldAudioPath)
         }
       }
 
-      if (updateData.imageFile && currentSermon.imageFile !== updateData.imageFile) {
+      if (updateData.imageFile && currentSermon.imageFile !== updateData.imageFile && currentSermon.imageFile) {
         const oldImagePath = path.join(uploadsDir, currentSermon.imageFile)
         if (fs.existsSync(oldImagePath)) {
           fs.unlinkSync(oldImagePath)
         }
       }
 
-      if (updateData.notesFile && currentSermon.notesFile !== updateData.notesFile) {
+      if (updateData.notesFile && currentSermon.notesFile !== updateData.notesFile && currentSermon.notesFile) {
         const oldNotesPath = path.join(uploadsDir, currentSermon.notesFile)
         if (fs.existsSync(oldNotesPath)) {
           fs.unlinkSync(oldNotesPath)
