@@ -100,7 +100,7 @@
               </span>
             </template>
             <template #content>
-              <audio controls class="w-full">
+              <audio controls ref="audioPlayer" class="w-full">
                 <source :src="`/uploads/${selectedSermon.audioFile}`" type="audio/mpeg">
                 <source :src="`/uploads/${selectedSermon.audioFile}`" type="audio/wav">
                 <source :src="`/uploads/${selectedSermon.audioFile}`" type="audio/ogg">
@@ -151,7 +151,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue'
+import { useTemplateRef, ref, onMounted } from 'vue'
 import axios from 'axios'
 import Card from 'primevue/card'
 import Button from 'primevue/button'
@@ -169,6 +169,8 @@ interface Sermon {
   order: number
   createdAt: string
 }
+
+const audioPlayer = useTemplateRef<HTMLAudioElement>('audioPlayer')
 
 // Reactive data
 const sermons = ref<Sermon[]>([])
@@ -195,6 +197,8 @@ const loadSermons = async () => {
 
 const selectSermon = (sermon: Sermon) => {
   selectedSermon.value = sermon
+  audioPlayer.value.load();
+  audioPlayer.value.play(); 
 }
 
 const formatDate = (dateString: string) => {
