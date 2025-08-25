@@ -271,7 +271,7 @@
           <!-- Show current image if exists -->
           <div v-if="currentSermonImage && !imageDeleted" class="mb-3 p-3 border rounded">
             <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-600">Current image: {{ currentSermonImage }}</span>
+              <span class="text-sm text-gray-600">Current image: <img :src="`/uploads/${currentSermonImage}`" style="width:150px"/></span>
               <Button 
                 label="Remove Image" 
                 icon="pi pi-trash" 
@@ -645,14 +645,16 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
+<style>
 .admin-container {
   max-width: 1200px;
   margin: 0 auto;
   min-height: 100vh;
   background: linear-gradient(to bottom, #000, #1a1a1a);
 }
-
+.p-listbox-option-selected {
+  background: forestgreen !important;
+}
 .sermon-item {
   background: white;
   border: 1px solid #e5e7eb;
