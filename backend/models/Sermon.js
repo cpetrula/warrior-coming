@@ -195,6 +195,36 @@ class Sermon {
   }
 
   /**
+   * Delete image from sermon by ID
+   */
+  async deleteImage(id, uploadsDir) {
+    try {
+      // First get the sermon to access file information
+      const sermon = await this.getById(id)
+      if (!sermon) {
+        return null
+      }
+
+      // Delete image file if it exists
+      if (sermon.imageFile) {
+        const imagePath = path.join(uploadsDir, sermon.imageFile)
+        if (fs.existsSync(imagePath)) {
+          fs.unlinkSync(imagePath)
+        }
+      }
+
+      // Update database to remove image reference
+      await pool.execute('UPDATE sermons SET image_file = NULL WHERE id = ?', [id])
+      
+      // Return the updated sermon
+      return await this.getById(id)
+    } catch (error) {
+      console.error('Error deleting sermon image:', error)
+      throw error
+    }
+  }
+
+  /**
    * Delete sermon by ID and remove associated files
    */
   async delete(id, uploadsDir) {

@@ -118,6 +118,23 @@ class SermonController {
   }
 
   /**
+   * Delete sermon image
+   */
+  async deleteSermonImage(req, res) {
+    try {
+      const updatedSermon = await Sermon.deleteImage(req.params.id, uploadsDir)
+      
+      if (!updatedSermon) {
+        return res.status(404).json({ error: 'Sermon not found' })
+      }
+
+      res.json(updatedSermon)
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to delete sermon image' })
+    }
+  }
+
+  /**
    * Delete sermon
    */
   async deleteSermon(req, res) {
