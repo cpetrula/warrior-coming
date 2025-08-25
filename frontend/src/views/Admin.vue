@@ -267,6 +267,27 @@
         
         <div class="field">
           <label for="editImageFile" class="block text-sm font-medium mb-2">Image (Optional - leave empty to keep current)</label>
+          
+          <!-- Show current image if exists -->
+          <div v-if="currentSermonImage && !imageDeleted" class="mb-3 p-3 border rounded">
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-600">Current image: {{ currentSermonImage }}</span>
+              <Button 
+                label="Remove Image" 
+                icon="pi pi-trash" 
+                @click="removeCurrentImage"
+                size="small"
+                severity="danger"
+                outlined
+              />
+            </div>
+          </div>
+          
+          <!-- Show message if image was deleted -->
+          <div v-if="imageDeleted" class="mb-3 p-3 border rounded bg-yellow-50">
+            <span class="text-sm text-yellow-700">Image will be removed when you save</span>
+          </div>
+          
           <FileUpload 
             id="editImageFile"
             mode="basic" 
@@ -364,6 +385,8 @@ const selectedNotesFile = ref<File | null>(null)
 const selectedEditAudioFile = ref<File | null>(null)
 const selectedEditImageFile = ref<File | null>(null)
 const selectedEditNotesFile = ref<File | null>(null)
+const currentSermonImage = ref<string | null>(null)
+const imageDeleted = ref(false)
 
 const errors = ref({
   title: '',
@@ -511,6 +534,7 @@ const onEditAudioSelect = (event: any) => {
 
 const onEditImageSelect = (event: any) => {
   selectedEditImageFile.value = event.files[0]
+  imageDeleted.value = false // Reset deletion flag when new image is selected
 }
 
 const onEditNotesSelect = (event: any) => {
@@ -529,6 +553,8 @@ const startEdit = (sermon: Sermon) => {
   selectedEditAudioFile.value = null
   selectedEditImageFile.value = null
   selectedEditNotesFile.value = null
+  currentSermonImage.value = sermon.imageFile || null
+  imageDeleted.value = false
   editErrors.value = { title: '', date: '' }
 }
 
@@ -539,7 +565,25 @@ const cancelEdit = () => {
   selectedEditAudioFile.value = null
   selectedEditImageFile.value = null
   selectedEditNotesFile.value = null
+  currentSermonImage.value = null
+  imageDeleted.value = false
   editErrors.value = { title: '', date: '' }
+}
+
+const removeCurrentImage = async () => {
+  if (!confirm('Are you sure you want to remove the current image?')) return
+  
+  try {
+    uploading.value = true
+    await axios.delete(`/api/sermons/${editingSermon.value.id}/image`)
+    imageDeleted.value = true
+    currentSermonImage.value = null
+  } catch (error) {
+    console.error('Error removing image:', error)
+    alert('Failed to remove image. Please try again.')
+  } finally {
+    uploading.value = false
+  }
 }
 
 const validateEditForm = () => {

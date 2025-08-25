@@ -27,6 +27,9 @@ router.put('/:id', upload.fields([
 // Update sermon order
 router.patch('/reorder', sermonController.reorderSermons)
 
+// Delete sermon image
+router.delete('/:id/image', sermonController.deleteSermonImage)
+
 // Delete sermon
 router.delete('/:id', sermonController.deleteSermon)
 
