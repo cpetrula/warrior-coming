@@ -88,6 +88,24 @@
           </div>
 
           <div class="field">
+            <label for="imageFiles" class="block text-sm font-medium mb-2">Additional Images (Optional - up to 10)</label>
+            <FileUpload 
+              id="imageFiles"
+              ref="imageFilesUpload"
+              mode="basic" 
+              accept="image/*"
+              :maxFileSize="10000000"
+              multiple
+              customUpload
+              @select="onImageFilesSelect"
+              chooseLabel="Choose Multiple Images"
+            />
+            <small v-if="selectedImageFiles.length > 0" class="text-green-600">
+              {{ selectedImageFiles.length }} image(s) selected
+            </small>
+          </div>
+
+          <div class="field">
             <label for="notesFile" class="block text-sm font-medium mb-2">Sermon Notes PDF (Optional)</label>
             <FileUpload 
               id="notesFile"
@@ -147,6 +165,7 @@
           <template #item="{ item: sermon, index }">
             <div class="sermon-item flex items-center justify-between p-4 border rounded w-full">
               <div class="flex items-center space-x-4">
+                <!-- Primary image (legacy) -->
                 <div v-if="sermon.imageFile" class="sermon-image">
                   <Image 
                     :src="`/uploads/${sermon.imageFile}`" 
@@ -155,6 +174,22 @@
                     height="60"
                     class="rounded"
                   />
+                </div>
+                <!-- Multiple images preview -->
+                <div v-else-if="sermon.images && sermon.images.length > 0" class="sermon-images flex space-x-2">
+                  <div v-for="(image, idx) in sermon.images.slice(0, 3)" :key="image.id" class="relative">
+                    <Image 
+                      :src="`/uploads/${image.imageFile}`" 
+                      alt="Sermon Image"
+                      width="60"
+                      height="60"
+                      class="rounded"
+                    />
+                    <div v-if="idx === 2 && sermon.images.length > 3" 
+                         class="absolute inset-0 bg-black bg-opacity-50 rounded flex items-center justify-center text-white text-sm">
+                      +{{ sermon.images.length - 3 }}
+                    </div>
+                  </div>
                 </div>
                 <div v-else class="sermon-placeholder w-15 h-15 bg-gray-300 rounded flex items-center justify-center">
                   <i class="pi pi-image text-gray-500"></i>
@@ -299,6 +334,42 @@
           />
         </div>
 
+        <!-- Display existing multiple images -->
+        <div v-if="editingSermon.images && editingSermon.images.length > 0" class="field">
+          <label class="block text-sm font-medium mb-2">Current Additional Images</label>
+          <div class="grid grid-cols-3 gap-4">
+            <div v-for="image in editingSermon.images" :key="image.id" class="relative border rounded p-2">
+              <img :src="`/uploads/${image.imageFile}`" alt="Sermon Image" class="w-full h-24 object-cover rounded" />
+              <Button 
+                icon="pi pi-trash" 
+                size="small"
+                severity="danger"
+                rounded
+                @click="deleteSermonImage(image.id)"
+                class="absolute top-1 right-1"
+                title="Delete this image"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="editImageFiles" class="block text-sm font-medium mb-2">Add More Images (Optional - up to 10 total)</label>
+          <FileUpload 
+            id="editImageFiles"
+            mode="basic" 
+            accept="image/*"
+            :maxFileSize="10000000"
+            multiple
+            customUpload
+            @select="onEditImageFilesSelect"
+            chooseLabel="Choose Additional Images"
+          />
+          <small v-if="selectedEditImageFiles.length > 0" class="text-green-600">
+            {{ selectedEditImageFiles.length }} new image(s) selected
+          </small>
+        </div>
+
         <div class="field">
           <label for="editNotesFile" class="block text-sm font-medium mb-2">Sermon Notes PDF (Optional - leave empty to keep current)</label>
           <FileUpload 
@@ -355,6 +426,14 @@ interface Sermon {
   notesFile?: string
   order: number
   createdAt: string
+  images?: SermonImage[]
+}
+
+interface SermonImage {
+  id: string
+  sermonId: string
+  imageFile: string
+  createdAt: string
 }
 
 // Reactive data
@@ -376,15 +455,18 @@ const editingSermon = ref({
   id: '',
   title: '',
   date: null as Date | null,
-  description: ''
+  description: '',
+  images: [] as SermonImage[]
 })
 
 const selectedAudioFile = ref<File | null>(null)
 const selectedImageFile = ref<File | null>(null)
 const selectedNotesFile = ref<File | null>(null)
+const selectedImageFiles = ref<File[]>([])
 const selectedEditAudioFile = ref<File | null>(null)
 const selectedEditImageFile = ref<File | null>(null)
 const selectedEditNotesFile = ref<File | null>(null)
+const selectedEditImageFiles = ref<File[]>([])
 const currentSermonImage = ref<string | null>(null)
 const imageDeleted = ref(false)
 
@@ -434,6 +516,10 @@ const onImageSelect = (event: any) => {
   selectedImageFile.value = event.files[0]
 }
 
+const onImageFilesSelect = (event: any) => {
+  selectedImageFiles.value = Array.from(event.files)
+}
+
 const onNotesSelect = (event: any) => {
   selectedNotesFile.value = event.files[0]
 }
@@ -458,6 +544,13 @@ const uploadSermon = async () => {
       formData.append('notesFile', selectedNotesFile.value)
     }
     
+    // Append multiple images
+    if (selectedImageFiles.value.length > 0) {
+      selectedImageFiles.value.forEach((file) => {
+        formData.append('imageFiles', file)
+      })
+    }
+    
     await axios.post('/api/sermons', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
@@ -469,13 +562,16 @@ const uploadSermon = async () => {
     selectedAudioFile.value = null
     selectedImageFile.value = null
     selectedNotesFile.value = null
+    selectedImageFiles.value = []
     
     // Clear file uploads
     const audioUpload = document.querySelector('#audioFile input') as HTMLInputElement
     const imageUpload = document.querySelector('#imageFile input') as HTMLInputElement
+    const imageFilesUpload = document.querySelector('#imageFiles input') as HTMLInputElement
     const notesUpload = document.querySelector('#notesFile input') as HTMLInputElement
     if (audioUpload) audioUpload.value = ''
     if (imageUpload) imageUpload.value = ''
+    if (imageFilesUpload) imageFilesUpload.value = ''
     if (notesUpload) notesUpload.value = ''
     
     await loadSermons()
@@ -537,8 +633,34 @@ const onEditImageSelect = (event: any) => {
   imageDeleted.value = false // Reset deletion flag when new image is selected
 }
 
+const onEditImageFilesSelect = (event: any) => {
+  selectedEditImageFiles.value = Array.from(event.files)
+}
+
 const onEditNotesSelect = (event: any) => {
   selectedEditNotesFile.value = event.files[0]
+}
+
+// Function to delete a specific sermon image
+const deleteSermonImage = async (imageId: string) => {
+  if (!confirm('Are you sure you want to delete this image?')) return
+  
+  try {
+    uploading.value = true
+    await axios.delete(`/api/sermons/images/${imageId}`)
+    
+    // Refresh the sermon data to update the images list
+    const response = await axios.get(`/api/sermons/${editingSermon.value.id}`)
+    editingSermon.value.images = response.data.images || []
+    
+    // Also update the sermon in the main list
+    await loadSermons()
+  } catch (error) {
+    console.error('Error deleting image:', error)
+    alert('Failed to delete image. Please try again.')
+  } finally {
+    uploading.value = false
+  }
 }
 
 const startEdit = (sermon: Sermon) => {
@@ -548,11 +670,13 @@ const startEdit = (sermon: Sermon) => {
     id: sermon.id,
     title: sermon.title,
     date: new Date(sermon.date),
-    description: sermon.description || ''
+    description: sermon.description || '',
+    images: sermon.images || []
   }
   selectedEditAudioFile.value = null
   selectedEditImageFile.value = null
   selectedEditNotesFile.value = null
+  selectedEditImageFiles.value = []
   currentSermonImage.value = sermon.imageFile || null
   imageDeleted.value = false
   editErrors.value = { title: '', date: '' }
@@ -561,10 +685,11 @@ const startEdit = (sermon: Sermon) => {
 const cancelEdit = () => {
   editing.value = null
   showEditDialog.value = false
-  editingSermon.value = { id: '', title: '', date: null, description: '' }
+  editingSermon.value = { id: '', title: '', date: null, description: '', images: [] }
   selectedEditAudioFile.value = null
   selectedEditImageFile.value = null
   selectedEditNotesFile.value = null
+  selectedEditImageFiles.value = []
   currentSermonImage.value = null
   imageDeleted.value = false
   editErrors.value = { title: '', date: '' }
@@ -621,6 +746,13 @@ const updateSermon = async () => {
     
     if (selectedEditNotesFile.value) {
       formData.append('notesFile', selectedEditNotesFile.value)
+    }
+    
+    // Append multiple images
+    if (selectedEditImageFiles.value.length > 0) {
+      selectedEditImageFiles.value.forEach((file) => {
+        formData.append('imageFiles', file)
+      })
     }
     
     await axios.put(`/api/sermons/${editingSermon.value.id}`, formData, {
