@@ -140,10 +140,121 @@
       </TabPanel>
       
       <TabPanel value="1">
-        <Card>
+        <!-- Music Upload Form -->
+        <Card class="mb-6">
+          <template #title>
+            <div class="flex justify-between items-center">
+              <span>Upload New Music</span>
+              <Button 
+                :icon="showMusicForm ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
+                @click="showMusicForm = !showMusicForm"
+                text
+                :aria-label="showMusicForm ? 'Collapse music form' : 'Expand music form'"
+              />
+            </div>
+          </template>
           <template #content>
-            <div class="text-center py-8 text-gray-500">
-              Music administration features will be available here soon.
+            <div v-show="showMusicForm">
+              <form @submit.prevent="createMusic" class="grid grid-cols-1 gap-4">
+                <div class="field">
+                  <label for="musicTitle" class="block text-sm font-medium mb-2">Title *</label>
+                  <InputText 
+                    id="musicTitle"
+                    v-model="newMusic.title" 
+                    placeholder="Enter music title"
+                    class="w-full"
+                    :class="{ 'p-invalid': musicErrors.title }"
+                    required 
+                  />
+                  <small v-if="musicErrors.title" class="p-error">{{ musicErrors.title }}</small>
+                </div>
+                
+                <div class="field">
+                  <label for="musicFile" class="block text-sm font-medium mb-2">Music File *</label>
+                  <FileUpload 
+                    id="musicFile"
+                    mode="basic" 
+                    accept="audio/*"
+                    :maxFileSize="100000000"
+                    customUpload
+                    @select="onMusicSelect"
+                    chooseLabel="Choose Music File"
+                    :class="{ 'p-invalid': musicErrors.musicFile }"
+                  />
+                  <small v-if="musicErrors.musicFile" class="p-error">{{ musicErrors.musicFile }}</small>
+                </div>
+                
+                <div class="flex gap-2">
+                  <Button 
+                    type="submit" 
+                    label="Upload Music" 
+                    icon="pi pi-upload"
+                    :loading="uploadingMusic"
+                    :disabled="!newMusic.title.trim() || !selectedMusicFile"
+                  />
+                  <Button 
+                    type="button" 
+                    label="Cancel" 
+                    severity="secondary"
+                    @click="showMusicForm = false"
+                    :disabled="uploadingMusic"
+                  />
+                </div>
+              </form>
+            </div>
+          </template>
+        </Card>
+
+        <!-- Music List -->
+        <Card>
+          <template #title>
+            <span>Music Library ({{ music.length }} items)</span>
+          </template>
+          <template #content>
+            <div v-if="loadingMusic" class="flex justify-center py-8">
+              <ProgressSpinner />
+            </div>
+            
+            <div v-else-if="music.length === 0" class="text-center py-8 text-gray-500">
+              No music uploaded yet. Use the form above to upload your first music file.
+            </div>
+            
+            <div v-else class="space-y-4">
+              <div 
+                v-for="musicItem in music" 
+                :key="musicItem.id"
+                class="flex items-center justify-between p-4 border rounded-lg bg-white"
+              >
+                <div class="flex-1">
+                  <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ musicItem.title }}</h3>
+                  
+                  <div class="mt-2">
+                    <audio controls class="w-full max-w-md">
+                      <source :src="`/uploads/${musicItem.musicFile}`" type="audio/mpeg">
+                      Your browser does not support the audio element.
+                    </audio>
+                  </div>
+                </div>
+                
+                <div class="flex gap-2 ml-4">
+                  <Button 
+                    icon="pi pi-pencil" 
+                    size="small"
+                    outlined
+                    @click="editMusic(musicItem)"
+                    :aria-label="`Edit ${musicItem.title}`"
+                  />
+                  <Button 
+                    icon="pi pi-trash" 
+                    size="small"
+                    severity="danger"
+                    outlined
+                    @click="deleteMusic(musicItem.id)"
+                    :loading="deletingMusic === musicItem.id"
+                    :aria-label="`Delete ${musicItem.title}`"
+                  />
+                </div>
+              </div>
             </div>
           </template>
         </Card>
@@ -607,6 +718,57 @@
         />
       </template>
     </Dialog>
+    
+    <!-- Edit Music Dialog -->
+    <Dialog 
+      v-model:visible="showEditMusicDialog" 
+      modal 
+      header="Edit Music" 
+      :style="{ width: '40rem' }" 
+      :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
+    >
+      <form @submit.prevent="updateMusic" class="grid grid-cols-1 gap-4">
+        <div class="field">
+          <label for="editMusicTitle" class="block text-sm font-medium mb-2">Title *</label>
+          <InputText 
+            id="editMusicTitle"
+            v-model="editingMusic.title" 
+            placeholder="Enter music title"
+            class="w-full"
+            :class="{ 'p-invalid': editMusicErrors.title }"
+            required 
+          />
+          <small v-if="editMusicErrors.title" class="p-error">{{ editMusicErrors.title }}</small>
+        </div>
+        
+        <div class="field">
+          <label for="editMusicFile" class="block text-sm font-medium mb-2">Music File (Optional - leave empty to keep current)</label>
+          <FileUpload 
+            id="editMusicFile"
+            mode="basic" 
+            accept="audio/*"
+            :maxFileSize="100000000"
+            customUpload
+            @select="onEditMusicSelect"
+            chooseLabel="Choose New Music File"
+          />
+        </div>
+      </form>
+      
+      <template #footer>
+        <Button 
+          label="Cancel" 
+          icon="pi pi-times" 
+          @click="showEditMusicDialog = false"
+        />
+        <Button 
+          label="Update" 
+          icon="pi pi-check" 
+          @click="updateMusic"
+          :loading="uploadingMusic"
+        />
+      </template>
+    </Dialog>
   </div>
 </template>
 
@@ -658,20 +820,34 @@ interface Blog {
   createdAt: string
 }
 
+interface Music {
+  id: string
+  title: string
+  musicFile: string
+  order: number
+  createdAt: string
+}
+
 // Reactive data
 const sermons = ref<Sermon[]>([])
 const blogs = ref<Blog[]>([])
+const music = ref<Music[]>([])
 const loading = ref(false)
 const loadingBlogs = ref(false)
+const loadingMusic = ref(false)
 const uploading = ref(false)
 const uploadingBlog = ref(false)
+const uploadingMusic = ref(false)
 const deleting = ref<string | null>(null)
 const deletingBlog = ref<string | null>(null)
+const deletingMusic = ref<string | null>(null)
 const editing = ref<string | null>(null)
 const showUploadForm = ref(false)
 const showBlogForm = ref(false)
+const showMusicForm = ref(false)
 const showEditDialog = ref(false)
 const showEditBlogDialog = ref(false)
+const showEditMusicDialog = ref(false)
 
 const newSermon = ref({
   title: '',
@@ -700,6 +876,15 @@ const editingBlog = ref({
   content: ''
 })
 
+const newMusic = ref({
+  title: ''
+})
+
+const editingMusic = ref({
+  id: '',
+  title: ''
+})
+
 const selectedAudioFile = ref<File | null>(null)
 const selectedImageFile = ref<File | null>(null)
 const selectedNotesFile = ref<File | null>(null)
@@ -710,6 +895,8 @@ const selectedEditNotesFile = ref<File | null>(null)
 const selectedEditImageFiles = ref<File[]>([])
 const currentSermonImage = ref<string | null>(null)
 const imageDeleted = ref(false)
+const selectedMusicFile = ref<File | null>(null)
+const selectedEditMusicFile = ref<File | null>(null)
 
 const errors = ref({
   title: '',
@@ -727,6 +914,15 @@ const editBlogErrors = ref({
   title: '',
   date: '',
   content: ''
+})
+
+const musicErrors = ref({
+  title: '',
+  musicFile: ''
+})
+
+const editMusicErrors = ref({
+  title: ''
 })
 
 const editErrors = ref({
@@ -1175,10 +1371,146 @@ const deleteBlog = async (id: string) => {
   }
 }
 
+// Music Methods
+const loadMusic = async () => {
+  try {
+    loadingMusic.value = true
+    const response = await axios.get('/api/music')
+    music.value = response.data
+  } catch (error) {
+    console.error('Error loading music:', error)
+  } finally {
+    loadingMusic.value = false
+  }
+}
+
+const createMusic = async () => {
+  try {
+    // Clear previous errors
+    musicErrors.value = { title: '', musicFile: '' }
+    
+    // Validate form
+    let hasErrors = false
+    
+    if (!newMusic.value.title.trim()) {
+      musicErrors.value.title = 'Title is required'
+      hasErrors = true
+    }
+    
+    if (!selectedMusicFile.value) {
+      musicErrors.value.musicFile = 'Music file is required'
+      hasErrors = true
+    }
+    
+    if (hasErrors) return
+    
+    uploadingMusic.value = true
+    
+    const formData = new FormData()
+    formData.append('title', newMusic.value.title.trim())
+    formData.append('musicFile', selectedMusicFile.value!)
+    
+    await axios.post('/api/music', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    
+    // Reset form
+    newMusic.value = { title: '' }
+    selectedMusicFile.value = null
+    showMusicForm.value = false
+    
+    await loadMusic()
+  } catch (error) {
+    console.error('Error creating music:', error)
+    alert('Failed to create music. Please try again.')
+  } finally {
+    uploadingMusic.value = false
+  }
+}
+
+const editMusic = (music: Music) => {
+  editingMusic.value = {
+    id: music.id,
+    title: music.title
+  }
+  selectedEditMusicFile.value = null
+  editMusicErrors.value = { title: '' }
+  showEditMusicDialog.value = true
+}
+
+const updateMusic = async () => {
+  try {
+    // Clear previous errors
+    editMusicErrors.value = { title: '' }
+    
+    // Validate form
+    let hasErrors = false
+    
+    if (!editingMusic.value.title.trim()) {
+      editMusicErrors.value.title = 'Title is required'
+      hasErrors = true
+    }
+    
+    if (hasErrors) return
+    
+    uploadingMusic.value = true
+    
+    const formData = new FormData()
+    formData.append('title', editingMusic.value.title.trim())
+    
+    if (selectedEditMusicFile.value) {
+      formData.append('musicFile', selectedEditMusicFile.value)
+    }
+    
+    await axios.put(`/api/music/${editingMusic.value.id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    
+    showEditMusicDialog.value = false
+    await loadMusic()
+  } catch (error) {
+    console.error('Error updating music:', error)
+    alert('Failed to update music. Please try again.')
+  } finally {
+    uploadingMusic.value = false
+  }
+}
+
+const deleteMusic = async (id: string) => {
+  if (!confirm('Are you sure you want to delete this music? This action cannot be undone.')) {
+    return
+  }
+  
+  try {
+    deletingMusic.value = id
+    await axios.delete(`/api/music/${id}`)
+    await loadMusic()
+  } catch (error) {
+    console.error('Error deleting music:', error)
+    alert('Failed to delete music. Please try again.')
+  } finally {
+    deletingMusic.value = null
+  }
+}
+
+const onMusicSelect = (event: any) => {
+  selectedMusicFile.value = event.files[0]
+  musicErrors.value.musicFile = ''
+}
+
+const onEditMusicSelect = (event: any) => {
+  selectedEditMusicFile.value = event.files[0]
+}
+
 // Lifecycle
 onMounted(async () => {
   loadSermons()
   await loadBlogs()
+  await loadMusic()
 })
 </script>
 
