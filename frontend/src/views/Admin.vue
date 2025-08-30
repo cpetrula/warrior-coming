@@ -10,10 +10,127 @@
     </TabList>
     <TabPanels>
       <TabPanel value="0">
-        <Card>
+        <!-- Blog Upload Form -->
+        <Card class="mb-6">
+          <template #title>
+            <div class="flex justify-between items-center">
+              <span>Create New Blog</span>
+              <Button 
+                :icon="showBlogForm ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
+                @click="showBlogForm = !showBlogForm"
+                text
+                :aria-label="showBlogForm ? 'Collapse blog form' : 'Expand blog form'"
+              />
+            </div>
+          </template>
           <template #content>
-            <div class="text-center py-8 text-gray-500">
-              Blog administration features will be available here soon.
+            <div v-show="showBlogForm">
+              <form @submit.prevent="createBlog" class="grid grid-cols-1 gap-4">
+                <div class="field">
+                  <label for="blogTitle" class="block text-sm font-medium mb-2">Title *</label>
+                  <InputText 
+                    id="blogTitle"
+                    v-model="newBlog.title" 
+                    placeholder="Enter blog title"
+                    class="w-full"
+                    :class="{ 'p-invalid': blogErrors.title }"
+                    required 
+                  />
+                  <small v-if="blogErrors.title" class="p-error">{{ blogErrors.title }}</small>
+                </div>
+                
+                <div class="field">
+                  <label for="blogDate" class="block text-sm font-medium mb-2">Date *</label>
+                  <Calendar 
+                    id="blogDate"
+                    v-model="newBlog.date" 
+                    dateFormat="yy-mm-dd"
+                    placeholder="Select date"
+                    class="w-full"
+                    :class="{ 'p-invalid': blogErrors.date }"
+                    required
+                  />
+                  <small v-if="blogErrors.date" class="p-error">{{ blogErrors.date }}</small>
+                </div>
+                
+                <div class="field">
+                  <label for="blogContent" class="block text-sm font-medium mb-2">Content *</label>
+                  <div 
+                    ref="quillEditor" 
+                    class="bg-white"
+                    :class="{ 'border-red-500 border-2': blogErrors.content }"
+                  ></div>
+                  <small v-if="blogErrors.content" class="p-error">{{ blogErrors.content }}</small>
+                </div>
+                
+                <div class="flex gap-4">
+                  <Button 
+                    type="submit" 
+                    label="Create Blog" 
+                    icon="pi pi-plus"
+                    :loading="uploadingBlog"
+                    :disabled="uploadingBlog"
+                  />
+                  <Button 
+                    type="button" 
+                    label="Clear" 
+                    icon="pi pi-times"
+                    severity="secondary"
+                    @click="clearBlogForm"
+                  />
+                </div>
+              </form>
+            </div>
+          </template>
+        </Card>
+
+        <!-- Blog List -->
+        <Card>
+          <template #title>
+            <span>Manage Blogs</span>
+          </template>
+          <template #content>
+            <div v-if="loadingBlogs" class="text-center py-8">
+              <ProgressSpinner />
+              <p class="mt-4 text-gray-500">Loading blogs...</p>
+            </div>
+            
+            <div v-else-if="blogs.length === 0" class="text-center py-8 text-gray-500">
+              No blogs found. Create your first blog above.
+            </div>
+            
+            <div v-else class="space-y-4">
+              <div 
+                v-for="blog in blogs" 
+                :key="blog.id"
+                class="border border-gray-200 rounded-lg p-4 bg-white"
+              >
+                <div class="flex justify-between items-start">
+                  <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-900">{{ blog.title }}</h3>
+                    <p class="text-sm text-gray-500 mb-2">{{ formatDate(blog.date) }}</p>
+                    <div class="text-sm text-gray-700 prose prose-sm max-w-none" v-html="blog.content.substring(0, 200) + (blog.content.length > 200 ? '...' : '')"></div>
+                  </div>
+                  <div class="flex gap-2 ml-4">
+                    <Button 
+                      icon="pi pi-pencil" 
+                      size="small"
+                      outlined
+                      @click="editBlog(blog)"
+                      :aria-label="`Edit ${blog.title}`"
+                    />
+                    <Button 
+                      icon="pi pi-trash" 
+                      size="small"
+                      severity="danger"
+                      outlined
+                      @click="deleteBlog(blog.id)"
+                      :loading="deletingBlog === blog.id"
+                      :aria-label="`Delete ${blog.title}`"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </template>
         </Card>
@@ -422,11 +539,73 @@
         />
       </template>
     </Dialog>
+
+    <!-- Edit Blog Dialog -->
+    <Dialog 
+      v-model:visible="showEditBlogDialog" 
+      modal 
+      header="Edit Blog" 
+      :style="{ width: '50rem' }" 
+      :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
+    >
+      <form @submit.prevent="updateBlog" class="grid grid-cols-1 gap-4">
+        <div class="field">
+          <label for="editBlogTitle" class="block text-sm font-medium mb-2">Title *</label>
+          <InputText 
+            id="editBlogTitle"
+            v-model="editingBlog.title" 
+            placeholder="Enter blog title"
+            class="w-full"
+            :class="{ 'p-invalid': editBlogErrors.title }"
+            required 
+          />
+          <small v-if="editBlogErrors.title" class="p-error">{{ editBlogErrors.title }}</small>
+        </div>
+        
+        <div class="field">
+          <label for="editBlogDate" class="block text-sm font-medium mb-2">Date *</label>
+          <Calendar 
+            id="editBlogDate"
+            v-model="editingBlog.date" 
+            dateFormat="yy-mm-dd"
+            placeholder="Select date"
+            class="w-full"
+            :class="{ 'p-invalid': editBlogErrors.date }"
+            required
+          />
+          <small v-if="editBlogErrors.date" class="p-error">{{ editBlogErrors.date }}</small>
+        </div>
+        
+        <div class="field">
+          <label for="editBlogContent" class="block text-sm font-medium mb-2">Content *</label>
+          <div 
+            ref="editQuillEditor" 
+            class="bg-white"
+            :class="{ 'border-red-500 border-2': editBlogErrors.content }"
+          ></div>
+          <small v-if="editBlogErrors.content" class="p-error">{{ editBlogErrors.content }}</small>
+        </div>
+      </form>
+      
+      <template #footer>
+        <Button 
+          label="Cancel" 
+          severity="secondary"
+          @click="showEditBlogDialog = false"
+        />
+        <Button 
+          label="Update" 
+          icon="pi pi-check" 
+          @click="updateBlog"
+          :loading="uploadingBlog"
+        />
+      </template>
+    </Dialog>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, nextTick } from 'vue'
 import axios from 'axios'
 import Card from 'primevue/card'
 import InputText from 'primevue/inputtext'
@@ -443,6 +622,8 @@ import TabList from 'primevue/tablist';
 import Tab from 'primevue/tab';
 import TabPanels from 'primevue/tabpanels';
 import TabPanel from 'primevue/tabpanel'
+import Quill from 'quill'
+import 'quill/dist/quill.snow.css'
 
 interface Sermon {
   id: string
@@ -464,14 +645,29 @@ interface SermonImage {
   createdAt: string
 }
 
+interface Blog {
+  id: string
+  title: string
+  date: string
+  content: string
+  order: number
+  createdAt: string
+}
+
 // Reactive data
 const sermons = ref<Sermon[]>([])
+const blogs = ref<Blog[]>([])
 const loading = ref(false)
+const loadingBlogs = ref(false)
 const uploading = ref(false)
+const uploadingBlog = ref(false)
 const deleting = ref<string | null>(null)
+const deletingBlog = ref<string | null>(null)
 const editing = ref<string | null>(null)
 const showUploadForm = ref(false)
+const showBlogForm = ref(false)
 const showEditDialog = ref(false)
+const showEditBlogDialog = ref(false)
 
 const newSermon = ref({
   title: '',
@@ -487,6 +683,19 @@ const editingSermon = ref({
   images: [] as SermonImage[]
 })
 
+const newBlog = ref({
+  title: '',
+  date: null as Date | null,
+  content: ''
+})
+
+const editingBlog = ref({
+  id: '',
+  title: '',
+  date: null as Date | null,
+  content: ''
+})
+
 const selectedAudioFile = ref<File | null>(null)
 const selectedImageFile = ref<File | null>(null)
 const selectedNotesFile = ref<File | null>(null)
@@ -498,10 +707,28 @@ const selectedEditImageFiles = ref<File[]>([])
 const currentSermonImage = ref<string | null>(null)
 const imageDeleted = ref(false)
 
+// Quill editor instances
+const quillEditor = ref<HTMLElement | null>(null)
+const editQuillEditor = ref<HTMLElement | null>(null)
+let quill: Quill | null = null
+let editQuill: Quill | null = null
+
 const errors = ref({
   title: '',
   date: '',
   audioFile: ''
+})
+
+const blogErrors = ref({
+  title: '',
+  date: '',
+  content: ''
+})
+
+const editBlogErrors = ref({
+  title: '',
+  date: '',
+  content: ''
 })
 
 const editErrors = ref({
@@ -799,9 +1026,224 @@ const updateSermon = async () => {
   }
 }
 
+// Blog Methods
+const loadBlogs = async () => {
+  try {
+    loadingBlogs.value = true
+    const response = await axios.get('/api/blogs')
+    blogs.value = response.data
+  } catch (error) {
+    console.error('Error loading blogs:', error)
+  } finally {
+    loadingBlogs.value = false
+  }
+}
+
+const initializeQuillEditors = async () => {
+  await nextTick()
+  
+  // Initialize create blog editor
+  if (quillEditor.value && !quill) {
+    quill = new Quill(quillEditor.value, {
+      theme: 'snow',
+      modules: {
+        toolbar: [
+          [{ 'header': [1, 2, 3, false] }],
+          ['bold', 'italic', 'underline', 'strike'],
+          ['blockquote', 'code-block'],
+          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+          [{ 'script': 'sub'}, { 'script': 'super' }],
+          [{ 'indent': '-1'}, { 'indent': '+1' }],
+          [{ 'direction': 'rtl' }],
+          [{ 'color': [] }, { 'background': [] }],
+          [{ 'align': [] }],
+          ['link', 'image'],
+          ['clean']
+        ]
+      },
+      placeholder: 'Write your blog content here...'
+    })
+  }
+  
+  // Initialize edit blog editor
+  if (editQuillEditor.value && !editQuill) {
+    editQuill = new Quill(editQuillEditor.value, {
+      theme: 'snow',
+      modules: {
+        toolbar: [
+          [{ 'header': [1, 2, 3, false] }],
+          ['bold', 'italic', 'underline', 'strike'],
+          ['blockquote', 'code-block'],
+          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+          [{ 'script': 'sub'}, { 'script': 'super' }],
+          [{ 'indent': '-1'}, { 'indent': '+1' }],
+          [{ 'direction': 'rtl' }],
+          [{ 'color': [] }, { 'background': [] }],
+          [{ 'align': [] }],
+          ['link', 'image'],
+          ['clean']
+        ]
+      },
+      placeholder: 'Edit your blog content here...'
+    })
+  }
+}
+
+const createBlog = async () => {
+  try {
+    // Clear previous errors
+    blogErrors.value = { title: '', date: '', content: '' }
+    
+    // Validate form
+    let hasErrors = false
+    
+    if (!newBlog.value.title.trim()) {
+      blogErrors.value.title = 'Title is required'
+      hasErrors = true
+    }
+    
+    if (!newBlog.value.date) {
+      blogErrors.value.date = 'Date is required'
+      hasErrors = true
+    }
+    
+    const content = quill ? quill.root.innerHTML : ''
+    if (!content.trim() || content === '<p><br></p>') {
+      blogErrors.value.content = 'Content is required'
+      hasErrors = true
+    }
+    
+    if (hasErrors) return
+    
+    uploadingBlog.value = true
+    
+    const blogData = {
+      title: newBlog.value.title.trim(),
+      date: newBlog.value.date.toISOString().split('T')[0],
+      content: content
+    }
+    
+    await axios.post('/api/blogs', blogData, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    
+    // Clear form and reload blogs
+    clearBlogForm()
+    await loadBlogs()
+    
+  } catch (error) {
+    console.error('Error creating blog:', error)
+    alert('Failed to create blog. Please try again.')
+  } finally {
+    uploadingBlog.value = false
+  }
+}
+
+const clearBlogForm = () => {
+  newBlog.value = {
+    title: '',
+    date: null,
+    content: ''
+  }
+  if (quill) {
+    quill.setContents([])
+  }
+  blogErrors.value = { title: '', date: '', content: '' }
+}
+
+const editBlog = async (blog: Blog) => {
+  editingBlog.value = {
+    id: blog.id,
+    title: blog.title,
+    date: new Date(blog.date),
+    content: blog.content
+  }
+  
+  showEditBlogDialog.value = true
+  
+  // Wait for dialog to open then initialize editor with content
+  await nextTick()
+  await initializeQuillEditors()
+  if (editQuill) {
+    editQuill.root.innerHTML = blog.content
+  }
+}
+
+const updateBlog = async () => {
+  try {
+    // Clear previous errors
+    editBlogErrors.value = { title: '', date: '', content: '' }
+    
+    // Validate form
+    let hasErrors = false
+    
+    if (!editingBlog.value.title.trim()) {
+      editBlogErrors.value.title = 'Title is required'
+      hasErrors = true
+    }
+    
+    if (!editingBlog.value.date) {
+      editBlogErrors.value.date = 'Date is required'
+      hasErrors = true
+    }
+    
+    const content = editQuill ? editQuill.root.innerHTML : ''
+    if (!content.trim() || content === '<p><br></p>') {
+      editBlogErrors.value.content = 'Content is required'
+      hasErrors = true
+    }
+    
+    if (hasErrors) return
+    
+    uploadingBlog.value = true
+    
+    const blogData = {
+      title: editingBlog.value.title.trim(),
+      date: editingBlog.value.date.toISOString().split('T')[0],
+      content: content
+    }
+    
+    await axios.put(`/api/blogs/${editingBlog.value.id}`, blogData, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    
+    showEditBlogDialog.value = false
+    await loadBlogs()
+    
+  } catch (error) {
+    console.error('Error updating blog:', error)
+    alert('Failed to update blog. Please try again.')
+  } finally {
+    uploadingBlog.value = false
+  }
+}
+
+const deleteBlog = async (id: string) => {
+  if (!confirm('Are you sure you want to delete this blog? This action cannot be undone.')) {
+    return
+  }
+  
+  try {
+    deletingBlog.value = id
+    await axios.delete(`/api/blogs/${id}`)
+    await loadBlogs()
+  } catch (error) {
+    console.error('Error deleting blog:', error)
+    alert('Failed to delete blog. Please try again.')
+  } finally {
+    deletingBlog.value = null
+  }
+}
+
 // Lifecycle
-onMounted(() => {
+onMounted(async () => {
   loadSermons()
+  await loadBlogs()
+  await initializeQuillEditors()
 })
 </script>
 
