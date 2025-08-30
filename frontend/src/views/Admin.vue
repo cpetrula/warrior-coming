@@ -2,8 +2,14 @@
   <div class="admin-container p-6">
     <h1 class="text-3xl font-bold mb-6 text-white">Administration</h1>
     
-    <TabView>
-      <TabPanel header="Blogs">
+    <Tabs value="0">
+       <TabList>
+        <Tab value="0">Blogs</Tab>
+        <Tab value="1">Music</Tab>
+        <Tab value="2">Sermons</Tab>
+    </TabList>
+    <TabPanels>
+      <TabPanel value="0">
         <Card>
           <template #content>
             <div class="text-center py-8 text-gray-500">
@@ -13,7 +19,7 @@
         </Card>
       </TabPanel>
       
-      <TabPanel header="Music">
+      <TabPanel value="1">
         <Card>
           <template #content>
             <div class="text-center py-8 text-gray-500">
@@ -23,7 +29,7 @@
         </Card>
       </TabPanel>
       
-      <TabPanel header="Sermons">
+      <TabPanel value="2">
         <!-- Upload Form -->
         <Card class="mb-6">
           <template #title>
@@ -254,7 +260,8 @@
           </template>
         </Card>
       </TabPanel>
-    </TabView>
+    </TabPanels>
+    </Tabs>
 
     <!-- Edit Sermon Dialog -->
     <Dialog 
@@ -431,7 +438,10 @@ import OrderList from 'primevue/orderlist'
 import Image from 'primevue/image'
 import ProgressSpinner from 'primevue/progressspinner'
 import Dialog from 'primevue/dialog'
-import TabView from 'primevue/tabview'
+import Tabs from 'primevue/tabs'
+import TabList from 'primevue/tablist';
+import Tab from 'primevue/tab';
+import TabPanels from 'primevue/tabpanels';
 import TabPanel from 'primevue/tabpanel'
 
 interface Sermon {

@@ -144,7 +144,7 @@
                   <img 
                     :src="slotProps.item.itemImageSrc" 
                     :alt="slotProps.item.alt" 
-                    style="width: 100%; height: 400px; object-fit: contain; background: #f8f9fa;"
+                    style="width: 100%;"
                     class="rounded"
                   />
                 </template>
