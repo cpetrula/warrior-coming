@@ -55,11 +55,12 @@
                 
                 <div class="field">
                   <label for="blogContent" class="block text-sm font-medium mb-2">Content *</label>
-                  <div 
-                    ref="quillEditor" 
-                    class="bg-white"
-                    :class="{ 'border-red-500 border-2': blogErrors.content }"
-                  ></div>
+                  <Editor 
+                    v-model="newBlog.content"
+                    placeholder="Write your blog content here..."
+                    :class="{ 'p-invalid': blogErrors.content }"
+                    editor-style="height: 320px"
+                  />
                   <small v-if="blogErrors.content" class="p-error">{{ blogErrors.content }}</small>
                 </div>
                 
@@ -578,11 +579,12 @@
         
         <div class="field">
           <label for="editBlogContent" class="block text-sm font-medium mb-2">Content *</label>
-          <div 
-            ref="editQuillEditor" 
-            class="bg-white"
-            :class="{ 'border-red-500 border-2': editBlogErrors.content }"
-          ></div>
+          <Editor 
+            v-model="editingBlog.content"
+            placeholder="Write your blog content here..."
+            :class="{ 'p-invalid': editBlogErrors.content }"
+            editor-style="height: 320px"
+          />
           <small v-if="editBlogErrors.content" class="p-error">{{ editBlogErrors.content }}</small>
         </div>
       </form>
@@ -605,7 +607,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, computed, nextTick } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import Card from 'primevue/card'
 import InputText from 'primevue/inputtext'
@@ -622,8 +624,7 @@ import TabList from 'primevue/tablist';
 import Tab from 'primevue/tab';
 import TabPanels from 'primevue/tabpanels';
 import TabPanel from 'primevue/tabpanel'
-import Quill from 'quill'
-import 'quill/dist/quill.snow.css'
+import Editor from 'primevue/editor'
 
 interface Sermon {
   id: string
@@ -706,12 +707,6 @@ const selectedEditNotesFile = ref<File | null>(null)
 const selectedEditImageFiles = ref<File[]>([])
 const currentSermonImage = ref<string | null>(null)
 const imageDeleted = ref(false)
-
-// Quill editor instances
-const quillEditor = ref<HTMLElement | null>(null)
-const editQuillEditor = ref<HTMLElement | null>(null)
-let quill: Quill | null = null
-let editQuill: Quill | null = null
 
 const errors = ref({
   title: '',
@@ -1039,56 +1034,6 @@ const loadBlogs = async () => {
   }
 }
 
-const initializeQuillEditors = async () => {
-  await nextTick()
-  
-  // Initialize create blog editor
-  if (quillEditor.value && !quill) {
-    quill = new Quill(quillEditor.value, {
-      theme: 'snow',
-      modules: {
-        toolbar: [
-          [{ 'header': [1, 2, 3, false] }],
-          ['bold', 'italic', 'underline', 'strike'],
-          ['blockquote', 'code-block'],
-          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-          [{ 'script': 'sub'}, { 'script': 'super' }],
-          [{ 'indent': '-1'}, { 'indent': '+1' }],
-          [{ 'direction': 'rtl' }],
-          [{ 'color': [] }, { 'background': [] }],
-          [{ 'align': [] }],
-          ['link', 'image'],
-          ['clean']
-        ]
-      },
-      placeholder: 'Write your blog content here...'
-    })
-  }
-  
-  // Initialize edit blog editor
-  if (editQuillEditor.value && !editQuill) {
-    editQuill = new Quill(editQuillEditor.value, {
-      theme: 'snow',
-      modules: {
-        toolbar: [
-          [{ 'header': [1, 2, 3, false] }],
-          ['bold', 'italic', 'underline', 'strike'],
-          ['blockquote', 'code-block'],
-          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-          [{ 'script': 'sub'}, { 'script': 'super' }],
-          [{ 'indent': '-1'}, { 'indent': '+1' }],
-          [{ 'direction': 'rtl' }],
-          [{ 'color': [] }, { 'background': [] }],
-          [{ 'align': [] }],
-          ['link', 'image'],
-          ['clean']
-        ]
-      },
-      placeholder: 'Edit your blog content here...'
-    })
-  }
-}
-
 const createBlog = async () => {
   try {
     // Clear previous errors
@@ -1107,8 +1052,7 @@ const createBlog = async () => {
       hasErrors = true
     }
     
-    const content = quill ? quill.root.innerHTML : ''
-    if (!content.trim() || content === '<p><br></p>') {
+    if (!newBlog.value.content.trim() || newBlog.value.content === '<p><br></p>') {
       blogErrors.value.content = 'Content is required'
       hasErrors = true
     }
@@ -1120,7 +1064,7 @@ const createBlog = async () => {
     const blogData = {
       title: newBlog.value.title.trim(),
       date: newBlog.value.date.toISOString().split('T')[0],
-      content: content
+      content: newBlog.value.content
     }
     
     await axios.post('/api/blogs', blogData, {
@@ -1147,9 +1091,6 @@ const clearBlogForm = () => {
     date: null,
     content: ''
   }
-  if (quill) {
-    quill.setContents([])
-  }
   blogErrors.value = { title: '', date: '', content: '' }
 }
 
@@ -1162,13 +1103,6 @@ const editBlog = async (blog: Blog) => {
   }
   
   showEditBlogDialog.value = true
-  
-  // Wait for dialog to open then initialize editor with content
-  await nextTick()
-  await initializeQuillEditors()
-  if (editQuill) {
-    editQuill.root.innerHTML = blog.content
-  }
 }
 
 const updateBlog = async () => {
@@ -1189,8 +1123,7 @@ const updateBlog = async () => {
       hasErrors = true
     }
     
-    const content = editQuill ? editQuill.root.innerHTML : ''
-    if (!content.trim() || content === '<p><br></p>') {
+    if (!editingBlog.value.content.trim() || editingBlog.value.content === '<p><br></p>') {
       editBlogErrors.value.content = 'Content is required'
       hasErrors = true
     }
@@ -1202,7 +1135,7 @@ const updateBlog = async () => {
     const blogData = {
       title: editingBlog.value.title.trim(),
       date: editingBlog.value.date.toISOString().split('T')[0],
-      content: content
+      content: editingBlog.value.content
     }
     
     await axios.put(`/api/blogs/${editingBlog.value.id}`, blogData, {
@@ -1243,7 +1176,6 @@ const deleteBlog = async (id: string) => {
 onMounted(async () => {
   loadSermons()
   await loadBlogs()
-  await initializeQuillEditors()
 })
 </script>
 
