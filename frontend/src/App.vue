@@ -22,12 +22,12 @@
   </div>
   <Drawer v-model:visible="showMenu" header="Menu" position="right">
       <div class="grid grid-cols-1 gap-2">
-        <router-link to="/">Home</router-link>
-        <router-link to="/sermons">Sermons</router-link>
-        <router-link to="/blogs">Blogs</router-link>
-        <router-link to="/music">Music</router-link>
-        <router-link to="/shop">Shop</router-link>
-        <router-link to="/admin">Admin</router-link>
+        <router-link to="/" @click="showMenu=false">Home</router-link>
+        <router-link to="/sermons" @click="showMenu=false">Sermons</router-link>
+        <router-link to="/blogs" @click="showMenu=false">Blogs</router-link>
+        <router-link to="/music" @click="showMenu=false">Music</router-link>
+        <router-link to="/shop" @click="showMenu=false">Shop</router-link>
+        <router-link to="/admin"  @click="showMenu=false">Admin</router-link>
       </div>
       
     </Drawer>
