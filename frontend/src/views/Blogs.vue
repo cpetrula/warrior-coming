@@ -13,9 +13,41 @@
         <p class="text-white/70 mt-2">Check back soon for new content!</p>
       </div>
     </div>
+
+    <div v-else class="grid grid-cols-3 gap-4">
+      <div 
+        v-for="blog in blogs" 
+        :key="blog.id"
+        class="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+     
+        <h3>{{ blog.title }}</h3>
+        
+            <div class="editor-output" v-html="blog.content"></div>
+        
+        
+      </div>
+    </div>
+      
+
+    <!-- <DataView v-else :value="blogs" layout="grid" class="mt-6">
+      <template #list="slotProps">
+        <div class="flex flex-col">
+        <Card v-for="(item, index) in slotProps.item" :key="index">
+          <template #title>{{ item.title }}</template>
+          <template #content>
+            <div v-html="item.content"></div>
+          </template>
+        </Card>
+        </div>
+      </template>
+    </DataView> -->
     
+<<<<<<< HEAD
     <!-- Blog Grid View -->
     <div v-else-if="!selectedBlog" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+=======
+    <!-- <div v-else class="space-y-6">
+>>>>>>> c0152df (minor tweaks)
       <article 
         v-for="blog in blogs" 
         :key="blog.id"
@@ -56,19 +88,29 @@
         </header>
         
         <div 
+<<<<<<< HEAD
           class="prose prose-invert prose-lg max-w-none text-white/90 whitespace-pre-wrap"
           v-text="selectedBlog.content"
+=======
+          class="prose prose-invert prose-lg text-white/90"
+          v-html="blog.content"
+>>>>>>> c0152df (minor tweaks)
         ></div>
       </article>
+    </div> -->
     </div>
-  </div>
 </template>
 
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import ProgressSpinner from 'primevue/progressspinner'
+<<<<<<< HEAD
 import Button from 'primevue/button'
+=======
+import DataView from 'primevue/dataview'
+import Card from 'primevue/card'
+>>>>>>> c0152df (minor tweaks)
 
 interface Blog {
   id: string
@@ -157,6 +199,13 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.editor-output :deep(.ql-editor) {
+  /* Apply the styles needed for proper rendering and wrapping */
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
 /* Custom prose styles for dark theme */
 .prose-invert h1,
 .prose-invert h2,

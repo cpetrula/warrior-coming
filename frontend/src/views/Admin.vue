@@ -1183,6 +1183,12 @@ onMounted(async () => {
 </script>
 
 <style>
+.editor-container :deep(.ql-editor) {
+  /* This ensures the content can wrap */
+  word-break: break-word;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
 .admin-container {
   max-width: 1200px;
   margin: 0 auto;
