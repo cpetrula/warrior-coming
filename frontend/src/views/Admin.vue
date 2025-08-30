@@ -1,244 +1,260 @@
 <template>
   <div class="admin-container p-6">
-    <h1 class="text-3xl font-bold mb-6 text-white">Sermon Administration</h1>
+    <h1 class="text-3xl font-bold mb-6 text-white">Administration</h1>
     
-    <!-- Upload Form -->
-    <Card class="mb-6">
-      <template #title>
-        <div class="flex justify-between items-center">
-          <span>Upload New Sermon</span>
-          <Button 
-            :icon="showUploadForm ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
-            @click="showUploadForm = !showUploadForm"
-            text
-            :aria-label="showUploadForm ? 'Collapse upload form' : 'Expand upload form'"
-          />
-        </div>
-      </template>
-      <template #content>
-        <div v-show="showUploadForm">
-          <form @submit.prevent="uploadSermon" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="field">
-            <label for="title" class="block text-sm font-medium mb-2">Title *</label>
-            <InputText 
-              id="title"
-              v-model="newSermon.title" 
-              placeholder="Enter sermon title"
-              class="w-full"
-              :class="{ 'p-invalid': errors.title }"
-              required 
-            />
-            <small v-if="errors.title" class="p-error">{{ errors.title }}</small>
-          </div>
-          
-          <div class="field">
-            <label for="date" class="block text-sm font-medium mb-2">Date *</label>
-            <Calendar 
-              id="date"
-              v-model="newSermon.date" 
-              dateFormat="yy-mm-dd"
-              placeholder="Select date"
-              class="w-full"
-              :class="{ 'p-invalid': errors.date }"
-              required
-            />
-            <small v-if="errors.date" class="p-error">{{ errors.date }}</small>
-          </div>
-          
-          <div class="field md:col-span-2">
-            <label for="description" class="block text-sm font-medium mb-2">Description (3-4 sentences)</label>
-            <Textarea 
-              id="description"
-              v-model="newSermon.description" 
-              placeholder="Enter a brief description of the sermon (3-4 sentences)"
-              rows="4"
-              class="w-full"
-            />
-            <small class="text-gray-500">Brief description limited to 3-4 sentences</small>
-          </div>
-          
-          <div class="field">
-            <label for="audioFile" class="block text-sm font-medium mb-2">Audio File *</label>
-            <FileUpload 
-              id="audioFile"
-              ref="audioUpload"
-              mode="basic" 
-              accept="audio/*"
-              :maxFileSize="100000000"
-              customUpload
-              @select="onAudioSelect"
-              :class="{ 'p-invalid': errors.audioFile }"
-              chooseLabel="Choose Audio File"
-            />
-            <small v-if="errors.audioFile" class="p-error">{{ errors.audioFile }}</small>
-          </div>
-          
-          <div class="field">
-            <label for="imageFile" class="block text-sm font-medium mb-2">Image (Optional)</label>
-            <FileUpload 
-              id="imageFile"
-              ref="imageUpload"
-              mode="basic" 
-              accept="image/*"
-              :maxFileSize="10000000"
-              customUpload
-              @select="onImageSelect"
-              chooseLabel="Choose Image"
-            />
-          </div>
+    <TabView>
+      <TabPanel header="Blogs">
+        <Card>
+          <template #content>
+            <div class="text-center py-8 text-gray-500">
+              Blog administration features will be available here soon.
+            </div>
+          </template>
+        </Card>
+      </TabPanel>
+      
+      <TabPanel header="Music">
+        <Card>
+          <template #content>
+            <div class="text-center py-8 text-gray-500">
+              Music administration features will be available here soon.
+            </div>
+          </template>
+        </Card>
+      </TabPanel>
+      
+      <TabPanel header="Sermons">
+        <!-- Upload Form -->
+        <Card class="mb-6">
+          <template #title>
+            <div class="flex justify-between items-center">
+              <span>Upload New Sermon</span>
+              <Button 
+                :icon="showUploadForm ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
+                @click="showUploadForm = !showUploadForm"
+                text
+                :aria-label="showUploadForm ? 'Collapse upload form' : 'Expand upload form'"
+              />
+            </div>
+          </template>
+          <template #content>
+            <div v-show="showUploadForm">
+              <form @submit.prevent="uploadSermon" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="field">
+                <label for="title" class="block text-sm font-medium mb-2">Title *</label>
+                <InputText 
+                  id="title"
+                  v-model="newSermon.title" 
+                  placeholder="Enter sermon title"
+                  class="w-full"
+                  :class="{ 'p-invalid': errors.title }"
+                  required 
+                />
+                <small v-if="errors.title" class="p-error">{{ errors.title }}</small>
+              </div>
+              
+              <div class="field">
+                <label for="date" class="block text-sm font-medium mb-2">Date *</label>
+                <Calendar 
+                  id="date"
+                  v-model="newSermon.date" 
+                  dateFormat="yy-mm-dd"
+                  placeholder="Select date"
+                  class="w-full"
+                  :class="{ 'p-invalid': errors.date }"
+                  required
+                />
+                <small v-if="errors.date" class="p-error">{{ errors.date }}</small>
+              </div>
+              
+              <div class="field md:col-span-2">
+                <label for="description" class="block text-sm font-medium mb-2">Description (3-4 sentences)</label>
+                <Textarea 
+                  id="description"
+                  v-model="newSermon.description" 
+                  placeholder="Enter a brief description of the sermon (3-4 sentences)"
+                  rows="4"
+                  class="w-full"
+                />
+                <small class="text-gray-500">Brief description limited to 3-4 sentences</small>
+              </div>
+              
+              <div class="field">
+                <label for="audioFile" class="block text-sm font-medium mb-2">Audio File *</label>
+                <FileUpload 
+                  id="audioFile"
+                  ref="audioUpload"
+                  mode="basic" 
+                  accept="audio/*"
+                  :maxFileSize="100000000"
+                  customUpload
+                  @select="onAudioSelect"
+                  :class="{ 'p-invalid': errors.audioFile }"
+                  chooseLabel="Choose Audio File"
+                />
+                <small v-if="errors.audioFile" class="p-error">{{ errors.audioFile }}</small>
+              </div>
+              
+              <div class="field">
+                <label for="imageFile" class="block text-sm font-medium mb-2">Image (Optional)</label>
+                <FileUpload 
+                  id="imageFile"
+                  ref="imageUpload"
+                  mode="basic" 
+                  accept="image/*"
+                  :maxFileSize="10000000"
+                  customUpload
+                  @select="onImageSelect"
+                  chooseLabel="Choose Image"
+                />
+              </div>
 
-          <div class="field">
-            <label for="imageFiles" class="block text-sm font-medium mb-2">Additional Images (Optional - up to 10)</label>
-            <FileUpload 
-              id="imageFiles"
-              ref="imageFilesUpload"
-              mode="basic" 
-              accept="image/*"
-              :maxFileSize="10000000"
-              multiple
-              customUpload
-              @select="onImageFilesSelect"
-              chooseLabel="Choose Multiple Images"
-            />
-            <small v-if="selectedImageFiles.length > 0" class="text-green-600">
-              {{ selectedImageFiles.length }} image(s) selected
-            </small>
-          </div>
+              <div class="field">
+                <label for="imageFiles" class="block text-sm font-medium mb-2">Additional Images (Optional - up to 10)</label>
+                <FileUpload 
+                  id="imageFiles"
+                  ref="imageFilesUpload"
+                  mode="basic" 
+                  accept="image/*"
+                  :maxFileSize="10000000"
+                  multiple
+                  customUpload
+                  @select="onImageFilesSelect"
+                  chooseLabel="Choose Multiple Images"
+                />
+                <small v-if="selectedImageFiles.length > 0" class="text-green-600">
+                  {{ selectedImageFiles.length }} image(s) selected
+                </small>
+              </div>
 
-          <div class="field">
-            <label for="notesFile" class="block text-sm font-medium mb-2">Sermon Notes PDF (Optional)</label>
-            <FileUpload 
-              id="notesFile"
-              ref="notesUpload"
-              mode="basic" 
-              accept="application/pdf"
-              :maxFileSize="50000000"
-              customUpload
-              @select="onNotesSelect"
-              chooseLabel="Choose PDF Notes"
-            />
-          </div>
-          
-          <div class="md:col-span-2">
-            <Button 
-              type="submit" 
-              label="Upload Sermon" 
-              :loading="uploading"
-              :disabled="!isFormValid"
-              class="w-full md:w-auto"
-            />
-          </div>
-        </form>
-        </div>
-      </template>
-    </Card>
-    
-    <!-- Sermons List -->
-    <Card>
-      <template #title>
-        <div class="flex justify-between items-center">
-          <span>Uploaded Sermons</span>
-          <Button 
-            icon="pi pi-refresh" 
-            @click="loadSermons"
-            :loading="loading"
-            text
-          />
-        </div>
-      </template>
-      <template #content>
-        <div v-if="loading" class="text-center py-4">
-          <ProgressSpinner />
-        </div>
+              <div class="field">
+                <label for="notesFile" class="block text-sm font-medium mb-2">Sermon Notes PDF (Optional)</label>
+                <FileUpload 
+                  id="notesFile"
+                  ref="notesUpload"
+                  mode="basic" 
+                  accept="application/pdf"
+                  :maxFileSize="50000000"
+                  customUpload
+                  @select="onNotesSelect"
+                  chooseLabel="Choose PDF Notes"
+                />
+              </div>
+              
+              <div class="md:col-span-2">
+                <Button 
+                  type="submit" 
+                  label="Upload Sermon" 
+                  :loading="uploading"
+                  :disabled="!isFormValid"
+                  class="w-full md:w-auto"
+                />
+              </div>
+            </form>
+            </div>
+          </template>
+        </Card>
         
-        <div v-else-if="sermons.length === 0" class="text-center py-8 text-gray-500">
-          No sermons uploaded yet.
-        </div>
-        
-        <OrderList 
-          v-else
-          v-model="sermons" 
-          listStyle="max-height:100%;"
-          dataKey="id"
-          @reorder="updateOrder"
-        >
-          <template #item="{ item: sermon, index }">
-            <div class="sermon-item flex items-center justify-between p-4 border rounded w-full">
-              <div class="flex items-center space-x-4">
-                <!-- Primary image (legacy) -->
-                <div v-if="sermon.imageFile" class="sermon-image">
-                  <Image 
-                    :src="`/uploads/${sermon.imageFile}`" 
-                    alt="Sermon Image"
-                    width="60"
-                    height="60"
-                    class="rounded"
-                  />
-                </div>
-                <!-- Multiple images preview -->
-                <div v-else-if="sermon.images && sermon.images.length > 0" class="sermon-images flex space-x-2">
-                  <div v-for="(image, idx) in sermon.images.slice(0, 3)" :key="image.id" class="relative">
+        <!-- Sermons List -->
+        <Card>
+          <template #title>
+            <div class="flex justify-between items-center">
+              <span>Uploaded Sermons</span>
+              <Button 
+                icon="pi pi-refresh" 
+                @click="loadSermons"
+                :loading="loading"
+                text
+              />
+            </div>
+          </template>
+          <template #content>
+            <div v-if="loading" class="text-center py-4">
+              <ProgressSpinner />
+            </div>
+            
+            <div v-else-if="sermons.length === 0" class="text-center py-8 text-gray-500">
+              No sermons uploaded yet.
+            </div>
+            
+            <div v-else class="space-y-4">
+              <div v-for="(sermon, index) in sermons" :key="sermon.id" class="sermon-item flex items-center justify-between p-4 border rounded w-full bg-white">
+                <div class="flex items-center space-x-4">
+                  <!-- Primary image (legacy) -->
+                  <div v-if="sermon.imageFile" class="sermon-image">
                     <Image 
-                      :src="`/uploads/${image.imageFile}`" 
+                      :src="`/uploads/${sermon.imageFile}`" 
                       alt="Sermon Image"
                       width="60"
                       height="60"
                       class="rounded"
                     />
-                    <div v-if="idx === 2 && sermon.images.length > 3" 
-                         class="absolute inset-0 bg-black bg-opacity-50 rounded flex items-center justify-center text-white text-sm">
-                      +{{ sermon.images.length - 3 }}
+                  </div>
+                  <!-- Multiple images preview -->
+                  <div v-else-if="sermon.images && sermon.images.length > 0" class="sermon-images flex space-x-2">
+                    <div v-for="(image, idx) in sermon.images.slice(0, 3)" :key="image.id" class="relative">
+                      <Image 
+                        :src="`/uploads/${image.imageFile}`" 
+                        alt="Sermon Image"
+                        width="60"
+                        height="60"
+                        class="rounded"
+                      />
+                      <div v-if="idx === 2 && sermon.images.length > 3" 
+                           class="absolute inset-0 bg-black bg-opacity-50 rounded flex items-center justify-center text-white text-sm">
+                        +{{ sermon.images.length - 3 }}
+                      </div>
+                    </div>
+                  </div>
+                  <div v-else class="sermon-placeholder w-15 h-15 bg-gray-300 rounded flex items-center justify-center">
+                    <i class="pi pi-image text-gray-500"></i>
+                  </div>
+                  
+                  <div class="sermon-details flex-1">
+                    <h3 class="font-bold text-lg text-black">{{ sermon.title }}</h3>
+                    <p class="text-sm text-gray-600">{{ formatDate(sermon.date) }}</p>
+                    <div v-if="sermon.description" class="text-sm text-gray-500 mt-1">
+                      {{ sermon.description.length > 100 ? sermon.description.substring(0, 100) + '...' : sermon.description }}
+                    </div>
+                    <div v-if="sermon.notesFile" class="mt-1">
+                      <a :href="`/uploads/${sermon.notesFile}`" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm">
+                        <i class="pi pi-file-pdf mr-1"></i>View Sermon Notes (PDF)
+                      </a>
+                    </div>
+                  
+                    <div class="mt-2">
+                      <audio controls class="w-full max-w-md">
+                        <source :src="`/uploads/${sermon.audioFile}`" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                      </audio>
                     </div>
                   </div>
                 </div>
-                <div v-else class="sermon-placeholder w-15 h-15 bg-gray-300 rounded flex items-center justify-center">
-                  <i class="pi pi-image text-gray-500"></i>
-                </div>
                 
-                <div class="sermon-details flex-1">
-                  <h3 class="font-bold text-lg text-black">{{ sermon.title }}</h3>
-                  <p class="text-sm text-gray-600">{{ formatDate(sermon.date) }}</p>
-                  <div v-if="sermon.description" class="text-sm text-gray-500 mt-1">
-                    {{ sermon.description.length > 100 ? sermon.description.substring(0, 100) + '...' : sermon.description }}
-                  </div>
-                  <div v-if="sermon.notesFile" class="mt-1">
-                    <a :href="`/uploads/${sermon.notesFile}`" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm">
-                      <i class="pi pi-file-pdf mr-1"></i>View Sermon Notes (PDF)
-                    </a>
-                  </div>
-                
-                  <div class="mt-2">
-                    <audio controls class="w-full max-w-md">
-                      <source :src="`/uploads/${sermon.audioFile}`" type="audio/mpeg">
-                      Your browser does not support the audio element.
-                    </audio>
-                  </div>
+                <div class="sermon-actions flex space-x-2">
+                  <Button 
+                    icon="pi pi-pencil" 
+                    severity="secondary"
+                    rounded
+                    @click="startEdit(sermon)"
+                    :disabled="editing !== null"
+                    title="Edit sermon"
+                  />
+                  <Button 
+                    icon="pi pi-trash" 
+                    severity="danger"
+                    rounded
+                    @click="deleteSermon(sermon.id)"
+                    :loading="deleting === sermon.id"
+                    title="Delete sermon"
+                  />
                 </div>
-              </div>
-              
-              <div class="sermon-actions flex space-x-2">
-                <Button 
-                  icon="pi pi-pencil" 
-                  severity="secondary"
-                  rounded
-                  @click="startEdit(sermon)"
-                  :disabled="editing !== null"
-                  title="Edit sermon"
-                />
-                <Button 
-                  icon="pi pi-trash" 
-                  severity="danger"
-                  rounded
-                  @click="deleteSermon(sermon.id)"
-                  :loading="deleting === sermon.id"
-                  title="Delete sermon"
-                />
               </div>
             </div>
           </template>
-        </OrderList>
-      </template>
-    </Card>
+        </Card>
+      </TabPanel>
+    </TabView>
 
     <!-- Edit Sermon Dialog -->
     <Dialog 
@@ -415,6 +431,8 @@ import OrderList from 'primevue/orderlist'
 import Image from 'primevue/image'
 import ProgressSpinner from 'primevue/progressspinner'
 import Dialog from 'primevue/dialog'
+import TabView from 'primevue/tabview'
+import TabPanel from 'primevue/tabpanel'
 
 interface Sermon {
   id: string
