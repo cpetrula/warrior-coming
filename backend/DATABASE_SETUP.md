@@ -21,8 +21,8 @@ The application uses the following database configuration:
 
 To prevent "too many connections" errors, the application supports these connection pool settings:
 
-- **DB_CONNECTION_LIMIT**: Maximum number of connections in pool (default: 10)
-- **DB_QUEUE_LIMIT**: Maximum number of queued connection requests (default: 20)
+- **DB_CONNECTION_LIMIT**: Maximum number of connections in pool (default: 5)
+- **DB_QUEUE_LIMIT**: Maximum number of queued connection requests (default: 0)
 
 ## Setup Instructions
 
@@ -56,8 +56,8 @@ To prevent "too many connections" errors, the application supports these connect
    DB_NAME=warriorc_db
    
    # Connection pool settings (to prevent "too many connections" errors)
-   DB_CONNECTION_LIMIT=10
-   DB_QUEUE_LIMIT=20
+   DB_CONNECTION_LIMIT=5
+   DB_QUEUE_LIMIT=0
    ```
 
 ## Database Schema

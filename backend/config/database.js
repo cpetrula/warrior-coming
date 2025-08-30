@@ -9,7 +9,7 @@ const dbConfig = {
   port: process.env.DB_PORT || 3306,
   waitForConnections: true,
   // Connection pool configuration - using only confirmed valid mysql2 options
-  connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT) || 20000000000,
+  connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT) || 5,
   queueLimit: parseInt(process.env.DB_QUEUE_LIMIT) || 0
 }
 
