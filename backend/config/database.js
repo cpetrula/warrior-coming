@@ -8,8 +8,8 @@ const dbConfig = {
   database: process.env.DB_NAME || 'warriorc_db',
   port: process.env.DB_PORT || 3306,
   // Connection pool configuration - using only confirmed valid mysql2 options
-  connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT) || 10,
-  queueLimit: parseInt(process.env.DB_QUEUE_LIMIT) || 20
+  connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT) || 15,
+  queueLimit: parseInt(process.env.DB_QUEUE_LIMIT) || 30
 }
 
 // Create connection pool
