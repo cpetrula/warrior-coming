@@ -1,7 +1,7 @@
 <template>
   <div class="music-container p-6">
     <h1 class="text-3xl font-bold mb-6 text-white">Music</h1>
-    
+    <div class="banner"></div>
     <div v-if="loading" class="flex justify-center py-8">
       <ProgressSpinner />
     </div>
@@ -13,11 +13,14 @@
     
     <div v-else class="music-list" v-for="musicItem in music" :key="musicItem.id">
 
-      <i class="pi pi-headphones"></i>
-      <div>
-        <div class="text-xl font-semibold text-white">{{ musicItem.title }}</div>
-        <div class="text-sm text-gray-500">
-              Added {{ formatDate(musicItem.createdAt) }}
+      
+      <div style="display:grid;grid-template-columns:60px 1fr;">
+        <i class="pi pi-headphones mb-4"></i>
+        <div>
+          <div class="text-xl font-semibold text-white">{{ musicItem.title }}</div>
+          <div class="text-sm text-gray-500">
+                Added {{ formatDate(musicItem.createdAt) }}
+          </div>
         </div>
       </div>
                    
@@ -104,7 +107,7 @@ onMounted(() => {
   border-radius: 8px;
   padding: 1rem;
   display:grid;
-  grid-template-columns: 60px 200px 1fr;
+  grid-template-columns: 280px 1fr;
 }
 
 .audio-player {
@@ -116,4 +119,21 @@ onMounted(() => {
 .audio-player audio {
   border-radius: 4px;
 }
+
+.banner {
+  width:100%;
+  height:200px;
+  background-image: url('/images/music-banner.jpg');
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+ @media (max-width: 480px) {
+  .music-list {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+ }
 </style>

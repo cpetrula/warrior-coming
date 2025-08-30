@@ -1,13 +1,6 @@
 <template>
   <div id="app">
-    <!-- <nav>
-      <router-link to="/">Home</router-link>
-      <router-link to="/sermons">Sermons</router-link>
-      <router-link to="/blogs">Blogs</router-link>
-      <router-link to="/music">Music</router-link>
-      <router-link to="/shop">Shop</router-link>
-    </nav> -->
-    <div class="grid grid-cols-2" style="position:absolute;left:0;top:0;right:0;z-index:1;">
+    <div class="nav-grid" style="position:absolute;left:0;top:0;right:0;z-index:1;">
       <div >
         <router-link to="/" class="logo">
         Warrior Coming
@@ -51,12 +44,9 @@ const showMenu = ref(false);
   src: url(https://cdn.jsdelivr.net/fontsource/fonts/cinzel-decorative@latest/latin-400-normal.woff2) format('woff2'), url(https://cdn.jsdelivr.net/fontsource/fonts/cinzel-decorative@latest/latin-400-normal.woff) format('woff');
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
-nav {
-  display: flex;
-  gap: 1rem;
-  padding: 1rem;
-  background-color: #333;
-  color: white;
+.nav-grid {
+  display: grid;
+  grid-template-columns: 1fr 75px;
 }
 a {
   color: white;
@@ -75,4 +65,15 @@ a {
   cursor: pointer;
   margin: 20px 20px 0 0;
 }
+
+ @media (max-width: 480px) {
+    .logo {
+      font-size: 1.5em;
+      margin: 10px 0 0 10px;
+    }
+    .menu-icon {
+      font-size: 1.5em;
+      margin: 10px 10px 0 0;
+    }
+  }
 </style>
