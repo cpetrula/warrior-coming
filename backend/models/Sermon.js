@@ -42,7 +42,7 @@ class Sermon {
       )
       
       // Get images for each sermon
-      const sermonsWithImages = await Promise.all(rows.map(async (row) => {
+      const sermonsWithImages = await Promise.all(rows. map(async (row) => {
         const images = await SermonImage.getBySermonId(row.id)
         return {
           ...row,
