@@ -122,7 +122,7 @@ onMounted(() => {
 
 .banner {
   width:100%;
-  height:200px;
+  height:270px;
   background-image: url('/images/music-banner.jpg');
   background-size: cover;
   background-position: center;
