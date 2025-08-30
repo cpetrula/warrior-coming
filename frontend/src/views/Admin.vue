@@ -55,11 +55,13 @@
                 
                 <div class="field">
                   <label for="blogContent" class="block text-sm font-medium mb-2">Content *</label>
-                  <Editor 
+                  <Textarea 
+                    id="blogContent"
                     v-model="newBlog.content"
                     placeholder="Write your blog content here..."
                     :class="{ 'p-invalid': blogErrors.content }"
-                    editor-style="height: 320px"
+                    rows="12"
+                    class="w-full"
                   />
                   <small v-if="blogErrors.content" class="p-error">{{ blogErrors.content }}</small>
                 </div>
@@ -579,11 +581,13 @@
         
         <div class="field">
           <label for="editBlogContent" class="block text-sm font-medium mb-2">Content *</label>
-          <Editor 
+          <Textarea 
+            id="editBlogContent"
             v-model="editingBlog.content"
             placeholder="Write your blog content here..."
             :class="{ 'p-invalid': editBlogErrors.content }"
-            editor-style="height: 320px"
+            rows="12"
+            class="w-full"
           />
           <small v-if="editBlogErrors.content" class="p-error">{{ editBlogErrors.content }}</small>
         </div>
@@ -624,7 +628,6 @@ import TabList from 'primevue/tablist';
 import Tab from 'primevue/tab';
 import TabPanels from 'primevue/tabpanels';
 import TabPanel from 'primevue/tabpanel'
-import Editor from 'primevue/editor'
 
 interface Sermon {
   id: string
