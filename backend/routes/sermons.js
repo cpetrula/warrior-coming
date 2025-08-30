@@ -14,20 +14,33 @@ router.get('/:id', sermonController.getSermonById)
 router.post('/', upload.fields([
   { name: 'audioFile', maxCount: 1 },
   { name: 'imageFile', maxCount: 1 },
-  { name: 'notesFile', maxCount: 1 }
+  { name: 'notesFile', maxCount: 1 },
+  { name: 'imageFiles', maxCount: 10 }
 ]), sermonController.createSermon)
 
 // Update existing sermon
 router.put('/:id', upload.fields([
   { name: 'audioFile', maxCount: 1 },
   { name: 'imageFile', maxCount: 1 },
-  { name: 'notesFile', maxCount: 1 }
+  { name: 'notesFile', maxCount: 1 },
+  { name: 'imageFiles', maxCount: 10 }
 ]), sermonController.updateSermon)
 
 // Update sermon order
 router.patch('/reorder', sermonController.reorderSermons)
 
-// Delete sermon image
+// Add images to sermon
+router.post('/:id/images', upload.fields([
+  { name: 'imageFiles', maxCount: 10 }
+]), sermonController.addSermonImages)
+
+// Get all images for a sermon
+router.get('/:id/images', sermonController.getSermonImages)
+
+// Delete a specific sermon image
+router.delete('/images/:imageId', sermonController.deleteSpecificSermonImage)
+
+// Delete sermon image (legacy single image)
 router.delete('/:id/image', sermonController.deleteSermonImage)
 
 // Delete sermon
