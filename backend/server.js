@@ -4,7 +4,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import sermonRoutes from './routes/sermons.js'
 import { uploadsDir } from './config/multer.js'
-import { testConnection } from './config/database.js'
+import { testConnection, closePool } from './config/database.js'
 
 
 const __filename = fileURLToPath(import.meta.url)
@@ -38,4 +38,17 @@ app.listen(PORT, async () => {
     console.warn('Warning: Database connection failed. Some features may not work properly.')
   }
 
+})
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  console.log('\nReceived SIGINT. Shutting down gracefully...')
+  await closePool()
+  process.exit(0)
+})
+
+process.on('SIGTERM', async () => {
+  console.log('\nReceived SIGTERM. Shutting down gracefully...')
+  await closePool()
+  process.exit(0)
 })

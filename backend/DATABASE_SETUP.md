@@ -17,6 +17,13 @@ The application uses the following database configuration:
 - **Username**: root (configurable via `DB_USER` environment variable)
 - **Password**: empty (configurable via `DB_PASSWORD` environment variable)
 
+### Connection Pool Configuration
+
+To prevent "too many connections" errors, the application supports these connection pool settings:
+
+- **DB_CONNECTION_LIMIT**: Maximum number of connections in pool (default: 10)
+- **DB_QUEUE_LIMIT**: Maximum number of queued connection requests (default: 20)
+
 ## Setup Instructions
 
 1. **Install MySQL Server** (if not already installed)
@@ -47,6 +54,10 @@ The application uses the following database configuration:
    DB_PASSWORD=your_password
    DB_PORT=3306
    DB_NAME=warriorc_db
+   
+   # Connection pool settings (to prevent "too many connections" errors)
+   DB_CONNECTION_LIMIT=10
+   DB_QUEUE_LIMIT=20
    ```
 
 ## Database Schema
@@ -87,6 +98,32 @@ If you prefer to set up the database manually:
 - Verify MySQL is running
 - Check credentials and host/port settings
 - Ensure the user has necessary permissions
+
+### "Too Many Connections" Error
+If you see `ER_TOO_MANY_USER_CONNECTIONS` error:
+
+1. **Reduce connection pool limit**:
+   ```bash
+   export DB_CONNECTION_LIMIT=5
+   ```
+
+2. **Check MySQL user connection limits**:
+   ```sql
+   SHOW VARIABLES LIKE 'max_user_connections';
+   SELECT USER, HOST FROM mysql.user WHERE USER = 'your_username';
+   ```
+
+3. **Increase user connection limit** (as MySQL admin):
+   ```sql
+   ALTER USER 'username'@'host' WITH MAX_USER_CONNECTIONS 20;
+   FLUSH PRIVILEGES;
+   ```
+
+4. **Monitor active connections**:
+   ```sql
+   SHOW PROCESSLIST;
+   SELECT * FROM information_schema.PROCESSLIST WHERE USER = 'your_username';
+   ```
 
 ### Permission Issues
 ```sql
