@@ -4,6 +4,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import sermonRoutes from './routes/sermons.js'
 import blogRoutes from './routes/blogs.js'
+import musicRoutes from './routes/music.js'
 import { uploadsDir } from './config/multer.js'
 import { testConnection, closePool } from './config/database.js'
 
@@ -25,6 +26,7 @@ app.use('/uploads', express.static(uploadsDir))
 // API Routes
 app.use('/api/sermons', sermonRoutes)
 app.use('/api/blogs', blogRoutes)
+app.use('/api/music', musicRoutes)
 
 // Fallback to index.html for SPA routing
 app.get('*', (req, res) => {
