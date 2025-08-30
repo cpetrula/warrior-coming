@@ -106,15 +106,62 @@
               </audio>
             </template>
           </Card>//-->
-          <Card v-if="selectedSermon.imageFile" class="cptest">
+          <!-- Image Gallery -->
+          <Card v-if="galleryImages.length > 0">
+            <template #title>
+              <span class="text-lg font-semibold flex items-center">
+                <i class="pi pi-images mr-2"></i>
+                Sermon Images ({{ galleryImages.length }})
+              </span>
+            </template>
             <template #content>
-           <Image 
-                  v-if="selectedSermon.imageFile"
-                  :src="`/uploads/${selectedSermon.imageFile}`" 
-                  alt="Sermon Image"
-                  width="100%"
-                  class="rounded"
-                />
+              <Galleria 
+                v-if="galleryImages.length === 1"
+                :value="galleryImages" 
+                :showThumbnails="false"
+                :showItemNavigators="false"
+                :showIndicators="false"
+                containerStyle="max-width: 100%"
+                class="custom-galleria"
+              >
+                <template #item="slotProps">
+                  <img 
+                    :src="slotProps.item.itemImageSrc" 
+                    :alt="slotProps.item.alt" 
+                    style="width: 100%; height: 400px; object-fit: contain; background: #f8f9fa;"
+                    class="rounded"
+                  />
+                </template>
+              </Galleria>
+              <Galleria 
+                v-else
+                :value="galleryImages" 
+                :responsiveOptions="responsiveOptions"
+                :numVisible="Math.min(4, galleryImages.length)"
+                :circular="true"
+                :showThumbnails="true"
+                :showItemNavigators="true"
+                :showIndicators="true"
+                containerStyle="max-width: 100%"
+                class="custom-galleria"
+              >
+                <template #item="slotProps">
+                  <img 
+                    :src="slotProps.item.itemImageSrc" 
+                    :alt="slotProps.item.alt" 
+                    style="width: 100%; height: 400px; object-fit: contain; background: #f8f9fa;"
+                    class="rounded"
+                  />
+                </template>
+                <template #thumbnail="slotProps">
+                  <img 
+                    :src="slotProps.item.thumbnailImageSrc" 
+                    :alt="slotProps.item.alt"
+                    style="width: 60px; height: 60px; object-fit: cover;"
+                    class="rounded"
+                  />
+                </template>
+              </Galleria>
             </template>
           </Card>
           <!-- PDF Notes Viewer -->
@@ -159,12 +206,20 @@
 </template>
 
 <script lang="ts" setup>
-import { useTemplateRef, ref, onMounted } from 'vue'
+import { useTemplateRef, ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import Card from 'primevue/card'
 import Button from 'primevue/button'
 import Image from 'primevue/image'
 import ProgressSpinner from 'primevue/progressspinner'
+import Galleria from 'primevue/galleria'
+
+interface SermonImage {
+  id: string
+  sermonId: string
+  imageFile: string
+  createdAt: string
+}
 
 interface Sermon {
   id: string
@@ -176,6 +231,7 @@ interface Sermon {
   notesFile?: string
   order: number
   createdAt: string
+  images?: SermonImage[]
 }
 
 const audioPlayer = useTemplateRef<HTMLAudioElement>('audioPlayer')
@@ -184,6 +240,53 @@ const audioPlayer = useTemplateRef<HTMLAudioElement>('audioPlayer')
 const sermons = ref<Sermon[]>([])
 const selectedSermon = ref<Sermon | null>(null)
 const loading = ref(false)
+
+// Galleria responsive options
+const responsiveOptions = ref([
+  {
+    breakpoint: '1024px',
+    numVisible: 3
+  },
+  {
+    breakpoint: '768px',
+    numVisible: 2
+  },
+  {
+    breakpoint: '560px',
+    numVisible: 1
+  }
+])
+
+// Computed properties
+const galleryImages = computed(() => {
+  if (!selectedSermon.value) return []
+  
+  const images = []
+  
+  // Add main image first if it exists
+  if (selectedSermon.value.imageFile) {
+    images.push({
+      itemImageSrc: `/uploads/${selectedSermon.value.imageFile}`,
+      thumbnailImageSrc: `/uploads/${selectedSermon.value.imageFile}`,
+      alt: `${selectedSermon.value.title} - Main Image`,
+      title: `${selectedSermon.value.title} - Main Image`
+    })
+  }
+  
+  // Add additional images from the images array
+  if (selectedSermon.value.images && selectedSermon.value.images.length > 0) {
+    selectedSermon.value.images.forEach((image, index) => {
+      images.push({
+        itemImageSrc: `/uploads/${image.imageFile}`,
+        thumbnailImageSrc: `/uploads/${image.imageFile}`,
+        alt: `${selectedSermon.value.title} - Image ${index + 2}`,
+        title: `${selectedSermon.value.title} - Image ${index + 2}`
+      })
+    })
+  }
+  
+  return images
+})
 
 // Methods
 const loadSermons = async () => {
@@ -277,6 +380,29 @@ audio {
 /* PDF viewer responsive */
 iframe {
   min-height: 400px;
+}
+
+/* Custom Galleria styling */
+.custom-galleria {
+  max-width: 100%;
+}
+
+.custom-galleria .p-galleria-thumbnail-items {
+  background: rgba(0, 0, 0, 0.9);
+  padding: 0.5rem;
+}
+
+.custom-galleria .p-galleria-thumbnail-item {
+  opacity: 0.6;
+  transition: opacity 0.3s;
+}
+
+.custom-galleria .p-galleria-thumbnail-item.p-galleria-thumbnail-item-current {
+  opacity: 1;
+}
+
+.custom-galleria .p-galleria-thumbnail-item:hover {
+  opacity: 1;
 }
 
 @media (max-width: 1024px) {
