@@ -11,39 +11,29 @@
       <p class="text-gray-500">Music will appear here once uploaded by an administrator.</p>
     </div>
     
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <Card 
-        v-for="musicItem in music" 
-        :key="musicItem.id"
-        class="music-card"
-      >
-        <template #content>
-          <div class="text-center">
-            <div class="mb-4">
-              <i class="pi pi-music text-6xl text-blue-500"></i>
-            </div>
-            
-            <h3 class="text-xl font-semibold text-gray-900 mb-4">{{ musicItem.title }}</h3>
-            
-            <div class="audio-player">
-              <audio 
-                controls 
-                class="w-full"
-                preload="metadata"
-              >
-                <source :src="`/uploads/${musicItem.musicFile}`" type="audio/mpeg">
-                <source :src="`/uploads/${musicItem.musicFile}`" type="audio/wav">
-                <source :src="`/uploads/${musicItem.musicFile}`" type="audio/ogg">
-                Your browser does not support the audio element.
-              </audio>
-            </div>
-            
-            <div class="mt-3 text-sm text-gray-500">
+    <div v-else class="music-list" v-for="musicItem in music" :key="musicItem.id">
+
+      <i class="pi pi-headphones"></i>
+      <div>
+        <div class="text-xl font-semibold text-white">{{ musicItem.title }}</div>
+        <div class="text-sm text-gray-500">
               Added {{ formatDate(musicItem.createdAt) }}
-            </div>
-          </div>
-        </template>
-      </Card>
+        </div>
+      </div>
+                   
+      <div>
+        <audio 
+          controls 
+          class="w-full"
+          preload="metadata"
+        >
+          <source :src="`/uploads/${musicItem.musicFile}`" type="audio/mpeg">
+          <source :src="`/uploads/${musicItem.musicFile}`" type="audio/wav">
+          <source :src="`/uploads/${musicItem.musicFile}`" type="audio/ogg">
+          Your browser does not support the audio element.
+        </audio>
+      </div>
+
     </div>
   </div>
 </template>
@@ -99,18 +89,22 @@ onMounted(() => {
 </script>
 
 <style scoped>
+
+.pi-headphones {
+  color: whitesmoke;
+  font-size:32pt;
+}
+
 .music-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
 }
 
-.music-card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.music-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+.music-list {
+  border-radius: 8px;
+  padding: 1rem;
+  display:grid;
+  grid-template-columns: 60px 200px 1fr;
 }
 
 .audio-player {
