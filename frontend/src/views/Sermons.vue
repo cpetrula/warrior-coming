@@ -111,18 +111,37 @@
             <template #title>
               <span class="text-lg font-semibold flex items-center">
                 <i class="pi pi-images mr-2"></i>
-                Sermon Images
+                Sermon Images ({{ galleryImages.length }})
               </span>
             </template>
             <template #content>
               <Galleria 
+                v-if="galleryImages.length === 1"
+                :value="galleryImages" 
+                :showThumbnails="false"
+                :showItemNavigators="false"
+                :showIndicators="false"
+                containerStyle="max-width: 100%"
+                class="custom-galleria"
+              >
+                <template #item="slotProps">
+                  <img 
+                    :src="slotProps.item.itemImageSrc" 
+                    :alt="slotProps.item.alt" 
+                    style="width: 100%; height: 400px; object-fit: contain; background: #f8f9fa;"
+                    class="rounded"
+                  />
+                </template>
+              </Galleria>
+              <Galleria 
+                v-else
                 :value="galleryImages" 
                 :responsiveOptions="responsiveOptions"
-                :numVisible="4"
+                :numVisible="Math.min(4, galleryImages.length)"
                 :circular="true"
-                :showThumbnails="galleryImages.length > 1"
-                :showItemNavigators="galleryImages.length > 1"
-                :showIndicators="galleryImages.length > 1"
+                :showThumbnails="true"
+                :showItemNavigators="true"
+                :showIndicators="true"
                 containerStyle="max-width: 100%"
                 class="custom-galleria"
               >
