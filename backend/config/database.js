@@ -7,9 +7,10 @@ const dbConfig = {
   password: process.env.DB_PASSWORD || 'StayFit2025!',
   database: process.env.DB_NAME || 'warriorc_db',
   port: process.env.DB_PORT || 3306,
+  waitForConnections: true,
   // Connection pool configuration - using only confirmed valid mysql2 options
-  connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT) || 15,
-  queueLimit: parseInt(process.env.DB_QUEUE_LIMIT) || 30
+  connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT) || 20000000000,
+  queueLimit: parseInt(process.env.DB_QUEUE_LIMIT) || 0
 }
 
 // Create connection pool

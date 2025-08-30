@@ -108,12 +108,7 @@
           </Card>//-->
           <!-- Image Gallery -->
           <Card v-if="galleryImages.length > 0">
-            <template #title>
-              <span class="text-lg font-semibold flex items-center">
-                <i class="pi pi-images mr-2"></i>
-                Sermon Images ({{ galleryImages.length }})
-              </span>
-            </template>
+          
             <template #content>
               <Galleria 
                 v-if="galleryImages.length === 1"
@@ -128,7 +123,7 @@
                   <img 
                     :src="slotProps.item.itemImageSrc" 
                     :alt="slotProps.item.alt" 
-                    style="width: 100%; height: 400px; object-fit: contain; background: #f8f9fa;"
+                    style="width: 100%; "
                     class="rounded"
                   />
                 </template>
