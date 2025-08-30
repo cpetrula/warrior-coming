@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import pool from '../config/database.js'
+import SermonImage from './SermonImage.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -39,11 +40,19 @@ class Sermon {
       const [rows] = await pool.execute(
         'SELECT id, title, date, description, audio_file as audioFile, image_file as imageFile, notes_file as notesFile, sermon_order as `order`, created_at as createdAt FROM sermons ORDER BY sermon_order ASC'
       )
-      return rows.map(row => ({
-        ...row,
-        id: String(row.id), // Convert to string for compatibility
-        date: row.date.toISOString().split('T')[0] // Format date as YYYY-MM-DD
+      
+      // Get images for each sermon
+      const sermonsWithImages = await Promise.all(rows.map(async (row) => {
+        const images = await SermonImage.getBySermonId(row.id)
+        return {
+          ...row,
+          id: String(row.id), // Convert to string for compatibility
+          date: row.date.toISOString().split('T')[0], // Format date as YYYY-MM-DD
+          images
+        }
       }))
+      
+      return sermonsWithImages
     } catch (error) {
       console.error('Error fetching sermons:', error)
       throw error
@@ -62,10 +71,13 @@ class Sermon {
       if (rows.length === 0) return null
       
       const row = rows[0]
+      const images = await SermonImage.getBySermonId(id)
+      
       return {
         ...row,
         id: String(row.id), // Convert to string for compatibility
-        date: row.date.toISOString().split('T')[0] // Format date as YYYY-MM-DD
+        date: row.date.toISOString().split('T')[0], // Format date as YYYY-MM-DD
+        images
       }
     } catch (error) {
       console.error('Error fetching sermon by ID:', error)
@@ -76,7 +88,7 @@ class Sermon {
   /**
    * Create a new sermon
    */
-  async create({ title, date, description, audioFile, imageFile, notesFile }) {
+  async create({ title, date, description, audioFile, imageFile, notesFile, imageFiles = [] }) {
     try {
       // Get the next order number
       const [maxOrderResult] = await pool.execute(
@@ -89,8 +101,15 @@ class Sermon {
         [title, date, description || '', audioFile, imageFile || null, notesFile || null, nextOrder]
       )
 
+      const sermonId = result.insertId
+
+      // Add multiple images if provided
+      if (imageFiles && imageFiles.length > 0) {
+        await SermonImage.addImages(sermonId, imageFiles)
+      }
+
       // Return the created sermon
-      return await this.getById(result.insertId)
+      return await this.getById(sermonId)
     } catch (error) {
       console.error('Error creating sermon:', error)
       throw error
@@ -225,6 +244,42 @@ class Sermon {
   }
 
   /**
+   * Add multiple images to a sermon
+   */
+  async addImages(sermonId, imageFiles) {
+    try {
+      return await SermonImage.addImages(sermonId, imageFiles)
+    } catch (error) {
+      console.error('Error adding images to sermon:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Delete a specific image from sermon_images table
+   */
+  async deleteSermonImage(imageId, uploadsDir) {
+    try {
+      return await SermonImage.deleteImage(imageId, uploadsDir)
+    } catch (error) {
+      console.error('Error deleting sermon image:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Get all images for a sermon
+   */
+  async getSermonImages(sermonId) {
+    try {
+      return await SermonImage.getBySermonId(sermonId)
+    } catch (error) {
+      console.error('Error getting sermon images:', error)
+      throw error
+    }
+  }
+
+  /**
    * Delete sermon by ID and remove associated files
    */
   async delete(id, uploadsDir) {
@@ -235,7 +290,10 @@ class Sermon {
         return null
       }
 
-      // Delete files
+      // Delete all sermon images from sermon_images table
+      await SermonImage.deleteAllBySermonId(id, uploadsDir)
+
+      // Delete main files
       if (sermon.audioFile) {
         const audioPath = path.join(uploadsDir, sermon.audioFile)
         if (fs.existsSync(audioPath)) {
@@ -257,7 +315,7 @@ class Sermon {
         }
       }
 
-      // Delete from database
+      // Delete from database (CASCADE will handle sermon_images)
       await pool.execute('DELETE FROM sermons WHERE id = ?', [id])
       
       return sermon
