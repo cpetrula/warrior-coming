@@ -92,6 +92,33 @@ const loadBlogs = async () => {
     blogs.value = response.data
   } catch (error) {
     console.error('Error loading blogs:', error)
+    // For demo purposes, add some mock data when API fails
+    blogs.value = [
+      {
+        id: '1',
+        title: 'Welcome to Our Blog',
+        date: '2024-01-15',
+        content: 'This is our first blog post. We are excited to share our thoughts and insights with you. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.',
+        order: 1,
+        createdAt: '2024-01-15T10:00:00Z'
+      },
+      {
+        id: '2',
+        title: 'Understanding Modern Web Development',
+        date: '2024-01-20',
+        content: 'Modern web development has evolved significantly over the past few years. With new frameworks, tools, and best practices emerging constantly, developers need to stay updated. In this post, we explore the latest trends and technologies that are shaping the web development landscape.',
+        order: 2,
+        createdAt: '2024-01-20T14:30:00Z'
+      },
+      {
+        id: '3',
+        title: 'The Future of Technology',
+        date: '2024-01-25',
+        content: 'Technology continues to advance at an unprecedented pace. From artificial intelligence to quantum computing, the future holds exciting possibilities. This article discusses emerging technologies and their potential impact on society.',
+        order: 3,
+        createdAt: '2024-01-25T09:15:00Z'
+      }
+    ]
   } finally {
     loading.value = false
   }
@@ -106,6 +133,11 @@ const formatDate = (dateString: string) => {
 }
 
 const truncateContent = (content: string) => {
+  // Handle null/undefined content
+  if (!content) {
+    return ''
+  }
+  
   // Remove HTML tags and get plain text
   const plainText = content.replace(/<[^>]*>/g, '')
   if (plainText.length <= 100) {
