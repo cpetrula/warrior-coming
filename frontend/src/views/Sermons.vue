@@ -1,6 +1,6 @@
 <template>
   <div class="sermons-container p-6">
-    <h1 class="text-3xl font-bold mb-6 text-white">Sermons</h1>
+    <!-- <h1 class="text-3xl font-bold mb-6 text-white">Sermons</h1> -->
     
     <!-- Loading State -->
     <div v-if="loading" class="text-center py-8">
@@ -18,7 +18,7 @@
       <div class="lg:col-span-1">
         <Card class="h-fit">
           <template #title>
-            <span class="text-lg font-semibold">Available Sermons</span>
+            <h1>Sermons</h1>
           </template>
           <template #content>
             <div class="space-y-3">
@@ -69,30 +69,28 @@
           <!-- Sermon Header -->
           <Card>
             <template #title>
-              <div class="flex items-center space-x-4">
-                <Image 
-                  v-if="selectedSermon.imageFile"
-                  :src="`/uploads/${selectedSermon.imageFile}`" 
-                  alt="Sermon Image"
-                  width="80"
-                  height="80"
-                  class="rounded"
-                />
-                <div>
+                             
+                <div class="grid grid-cols-2 auto-cols-max">
                   <h2 class="text-xl font-bold text-gray-200">{{ selectedSermon.title }}</h2>
-                  <p class="text-gray-400">{{ formatDate(selectedSermon.date) }}</p>
+                  <p class="text-gray-400 text-right">{{ formatDate(selectedSermon.date) }}</p>
                 </div>
-              </div>
+             
             </template>
             <template #content>
-              <p v-if="selectedSermon.description" class="text-gray-300">
+              <p v-if="selectedSermon.description" class="text-gray-300 pb-4">
                 {{ selectedSermon.description }}
               </p>
+              <audio controls ref="audioPlayer" class="w-full">
+                <source :src="`/uploads/${selectedSermon.audioFile}`" type="audio/mpeg">
+                <source :src="`/uploads/${selectedSermon.audioFile}`" type="audio/wav">
+                <source :src="`/uploads/${selectedSermon.audioFile}`" type="audio/ogg">
+                Your browser does not support the audio element.
+              </audio>
             </template>
           </Card>
           
           <!-- Audio Player -->
-          <Card>
+         <!--// <Card>
             <template #title>
               <span class="text-lg font-semibold flex items-center">
                 <i class="pi pi-play mr-2"></i>
@@ -107,8 +105,18 @@
                 Your browser does not support the audio element.
               </audio>
             </template>
+          </Card>//-->
+          <Card v-if="selectedSermon.imageFile" class="cptest">
+            <template #content>
+           <Image 
+                  v-if="selectedSermon.imageFile"
+                  :src="`/uploads/${selectedSermon.imageFile}`" 
+                  alt="Sermon Image"
+                  width="100%"
+                  class="rounded"
+                />
+            </template>
           </Card>
-          
           <!-- PDF Notes Viewer -->
           <Card v-if="selectedSermon.notesFile">
             <template #title>
@@ -199,6 +207,7 @@ const selectSermon = (sermon: Sermon) => {
   selectedSermon.value = sermon
   audioPlayer.value.load();
   audioPlayer.value.play(); 
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 const formatDate = (dateString: string) => {
