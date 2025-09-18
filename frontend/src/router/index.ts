@@ -9,6 +9,7 @@ import Admin from '../views/Admin.vue';
 const routes = [
   { path: '/', component: Home },
   { path: '/sermons', component: Sermons },
+  { path: '/sermons/:id', component: Sermons, props: true },
   { path: '/blogs', component: Blogs },
   { path: '/music', component: Music },
   { path: '/shop', component: Shop },
