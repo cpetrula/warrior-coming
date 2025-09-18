@@ -80,6 +80,54 @@
               <p v-if="selectedSermon.description" class="text-gray-300 pb-4">
                 {{ selectedSermon.description }}
               </p>
+              
+              <!-- Social Media Sharing -->
+              <div class="flex items-center gap-3 mb-4 p-3 bg-gray-50 rounded">
+                <span class="text-sm font-medium text-gray-600">Share this sermon:</span>
+                <div class="flex gap-2">
+                  <Button
+                    icon="pi pi-facebook"
+                    size="small"
+                    text
+                    rounded
+                    class="p-button-facebook"
+                    @click="shareOnFacebook"
+                    :aria-label="`Share ${selectedSermon.title} on Facebook`"
+                    title="Share on Facebook"
+                  />
+                  <Button
+                    icon="pi pi-twitter"
+                    size="small"
+                    text
+                    rounded
+                    class="p-button-twitter"
+                    @click="shareOnTwitter"
+                    :aria-label="`Share ${selectedSermon.title} on Twitter`"
+                    title="Share on Twitter"
+                  />
+                  <Button
+                    icon="pi pi-whatsapp"
+                    size="small"
+                    text
+                    rounded
+                    class="p-button-whatsapp"
+                    @click="shareOnWhatsApp"
+                    :aria-label="`Share ${selectedSermon.title} on WhatsApp`"
+                    title="Share on WhatsApp"
+                  />
+                  <Button
+                    icon="pi pi-copy"
+                    size="small"
+                    text
+                    rounded
+                    class="p-button-secondary"
+                    @click="copyLink"
+                    :aria-label="`Copy link to ${selectedSermon.title}`"
+                    title="Copy link"
+                  />
+                </div>
+              </div>
+              
               <audio controls ref="audioPlayer" class="w-full">
                 <source :src="`/uploads/${selectedSermon.audioFile}`" type="audio/mpeg">
                 <source :src="`/uploads/${selectedSermon.audioFile}`" type="audio/wav">
@@ -364,6 +412,65 @@ const downloadPDF = () => {
   }
 }
 
+// Social Media Sharing Functions
+const getSermonUrl = () => {
+  const baseUrl = window.location.origin
+  return `${baseUrl}/sermons/${selectedSermon.value?.id}`
+}
+
+const getShareText = () => {
+  const title = selectedSermon.value?.title || 'Sermon'
+  const date = selectedSermon.value?.date ? ` from ${formatDate(selectedSermon.value.date)}` : ''
+  return `Check out this sermon: "${title}"${date} from Warrior Coming`
+}
+
+const shareOnFacebook = () => {
+  if (!selectedSermon.value) return
+  
+  const url = getSermonUrl()
+  const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`
+  window.open(shareUrl, '_blank', 'width=600,height=400')
+}
+
+const shareOnTwitter = () => {
+  if (!selectedSermon.value) return
+  
+  const url = getSermonUrl()
+  const text = getShareText()
+  const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`
+  window.open(shareUrl, '_blank', 'width=600,height=400')
+}
+
+const shareOnWhatsApp = () => {
+  if (!selectedSermon.value) return
+  
+  const url = getSermonUrl()
+  const text = getShareText()
+  const shareUrl = `https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`
+  window.open(shareUrl, '_blank')
+}
+
+const copyLink = async () => {
+  if (!selectedSermon.value) return
+  
+  const url = getSermonUrl()
+  
+  try {
+    await navigator.clipboard.writeText(url)
+    // Show a simple toast notification (we can use the browser's native notification for now)
+    alert('Link copied to clipboard!')
+  } catch (err) {
+    // Fallback for older browsers
+    const textArea = document.createElement('textarea')
+    textArea.value = url
+    document.body.appendChild(textArea)
+    textArea.select()
+    document.execCommand('copy')
+    document.body.removeChild(textArea)
+    alert('Link copied to clipboard!')
+  }
+}
+
 // Lifecycle
 onMounted(() => {
   loadSermons()
@@ -448,5 +555,42 @@ iframe {
   iframe {
     height: 300px;
   }
+}
+
+/* Social Media Button Styles */
+.p-button-facebook {
+  color: #1877f2 !important;
+}
+
+.p-button-facebook:hover {
+  background-color: #1877f2 !important;
+  color: white !important;
+}
+
+.p-button-twitter {
+  color: #1da1f2 !important;
+}
+
+.p-button-twitter:hover {
+  background-color: #1da1f2 !important;
+  color: white !important;
+}
+
+.p-button-whatsapp {
+  color: #25d366 !important;
+}
+
+.p-button-whatsapp:hover {
+  background-color: #25d366 !important;
+  color: white !important;
+}
+
+.p-button-secondary {
+  color: #6c757d !important;
+}
+
+.p-button-secondary:hover {
+  background-color: #6c757d !important;
+  color: white !important;
 }
 </style>
