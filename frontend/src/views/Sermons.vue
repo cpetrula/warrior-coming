@@ -201,7 +201,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useTemplateRef, ref, onMounted, computed } from 'vue'
+import { useTemplateRef, ref, onMounted, computed, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import Card from 'primevue/card'
 import Button from 'primevue/button'
@@ -230,6 +231,10 @@ interface Sermon {
 }
 
 const audioPlayer = useTemplateRef<HTMLAudioElement>('audioPlayer')
+
+// Router
+const route = useRoute()
+const router = useRouter()
 
 // Reactive data
 const sermons = ref<Sermon[]>([])
@@ -288,14 +293,28 @@ const loadSermons = async () => {
   loading.value = true
   try {
     const response = await axios.get('/api/sermons')
-    sermons.value = response.data
+    sermons.value = response.data || []
     
-    // Auto-select the first sermon if available
-    if (sermons.value.length > 0 && !selectedSermon.value) {
-      selectedSermon.value = sermons.value[0]
+    // Check if there's a sermon ID in the URL
+    const sermonId = route.params.id as string
+    if (sermonId) {
+      // Find and select the sermon with the matching ID
+      const foundSermon = sermons.value.find(sermon => sermon.id === sermonId)
+      if (foundSermon) {
+        selectedSermon.value = foundSermon
+      } else {
+        // If sermon not found, redirect to sermons list
+        router.push('/sermons')
+      }
+    } else {
+      // Auto-select the first sermon if no ID in URL and no sermon selected
+      if (sermons.value.length > 0 && !selectedSermon.value) {
+        selectedSermon.value = sermons.value[0]
+      }
     }
   } catch (error) {
     console.error('Error loading sermons:', error)
+    sermons.value = [] // Ensure sermons is always an array
   } finally {
     loading.value = false
   }
@@ -303,8 +322,16 @@ const loadSermons = async () => {
 
 const selectSermon = (sermon: Sermon) => {
   selectedSermon.value = sermon
-  audioPlayer.value.load();
-  audioPlayer.value.play(); 
+  
+  // Navigate to the unique URL for this sermon
+  if (route.params.id !== sermon.id) {
+    router.push(`/sermons/${sermon.id}`)
+  }
+  
+  if (audioPlayer.value) {
+    audioPlayer.value.load();
+    audioPlayer.value.play(); 
+  }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -340,6 +367,19 @@ const downloadPDF = () => {
 // Lifecycle
 onMounted(() => {
   loadSermons()
+})
+
+// Watch for route changes to handle direct navigation to sermon URLs
+watch(() => route.params.id, (newId) => {
+  if (newId && sermons.value.length > 0) {
+    const foundSermon = sermons.value.find(sermon => sermon.id === newId)
+    if (foundSermon) {
+      selectedSermon.value = foundSermon
+    }
+  } else if (!newId && sermons.value.length > 0) {
+    // If navigated back to /sermons without ID, select first sermon
+    selectedSermon.value = sermons.value[0]
+  }
 })
 </script>
 
