@@ -103,7 +103,7 @@
                     class="p-button-twitter"
                     @click="shareOnTwitter"
                     :aria-label="`Share ${selectedSermon.title} on Twitter`"
-                    title="Share on Twitter"
+                    title="Share on X"
                   />
                   <Button
                     icon="pi pi-whatsapp"
