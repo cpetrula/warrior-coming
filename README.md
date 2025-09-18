@@ -6,7 +6,7 @@ A web application for managing and displaying sermon content with audio playback
 
 - **Sermon Management**: Upload, edit, and organize sermons with audio files, optional images, and PDF notes
 - **Audio Player**: Built-in audio player with playback controls
-- **Admin Interface**: Administrative dashboard for content management with PDF notes support
+- **Admin Interface**: Password-protected administrative dashboard for content management with PDF notes support
 - **MySQL Database**: Persistent storage using MySQL database
 
 ## Setup
@@ -50,7 +50,7 @@ A web application for managing and displaying sermon content with audio playback
 
 5. **Access the application**
    - Main application: http://localhost:3000
-   - Admin interface: http://localhost:3000/admin
+   - Admin interface: http://localhost:3000/admin (password protected - default: Lakers2025!)
 
 ## Configuration
 
@@ -61,6 +61,10 @@ Database settings can be configured using environment variables:
 - `DB_PASSWORD` - Database password (default: empty)
 - `DB_NAME` - Database name (default: warriorc_db)
 - `DB_PORT` - Database port (default: 3306)
+
+Admin authentication can be configured using:
+
+- `ADMIN_PASSWORD` - Admin interface password (default: Lakers2025!)
 
 ## Project Structure
 
