@@ -1,7 +1,56 @@
 <template>
   <div class="admin-container p-6">
-    <h1 class="text-3xl font-bold mb-6 text-white">Administration</h1>
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold text-white">Administration</h1>
+      <Button 
+        v-if="isAuthenticated" 
+        @click="logout" 
+        icon="pi pi-sign-out" 
+        label="Logout" 
+        text 
+        class="text-white"
+      />
+    </div>
     
+    <!-- Login Form -->
+    <div v-if="!isAuthenticated" class="flex justify-center items-center min-h-[60vh]">
+      <Card class="w-full max-w-md">
+        <template #title>
+          <div class="text-center">
+            <h2 class="text-2xl font-bold">Admin Login</h2>
+          </div>
+        </template>
+        <template #content>
+          <form @submit.prevent="authenticateAdmin" class="space-y-4">
+            <div class="field">
+              <label for="adminPassword" class="block text-sm font-medium mb-2">Password</label>
+              <Password 
+                id="adminPassword"
+                v-model="loginPassword"
+                placeholder="Enter admin password"
+                class="w-full"
+                :class="{ 'p-invalid': loginError }"
+                :feedback="false"
+                toggleMask
+                required
+              />
+              <small v-if="loginError" class="p-error">{{ loginError }}</small>
+            </div>
+            
+            <Button 
+              type="submit" 
+              label="Login" 
+              class="w-full"
+              :loading="authenticating"
+              :disabled="authenticating"
+            />
+          </form>
+        </template>
+      </Card>
+    </div>
+    
+    <!-- Admin Content (only shown when authenticated) -->
+    <div v-if="isAuthenticated">
     <Tabs value="0">
        <TabList>
         <Tab value="0">Blogs</Tab>
@@ -769,6 +818,7 @@
         />
       </template>
     </Dialog>
+    </div> <!-- End of authenticated content -->
   </div>
 </template>
 
@@ -790,6 +840,13 @@ import TabList from 'primevue/tablist';
 import Tab from 'primevue/tab';
 import TabPanels from 'primevue/tabpanels';
 import TabPanel from 'primevue/tabpanel'
+import Password from 'primevue/password'
+
+// Authentication state
+const isAuthenticated = ref(false)
+const loginPassword = ref('')
+const loginError = ref('')
+const authenticating = ref(false)
 
 interface Sermon {
   id: string
@@ -1506,11 +1563,59 @@ const onEditMusicSelect = (event: any) => {
   selectedEditMusicFile.value = event.files[0]
 }
 
+// Authentication functions
+const authenticateAdmin = async () => {
+  if (!loginPassword.value.trim()) {
+    loginError.value = 'Password is required'
+    return
+  }
+  
+  authenticating.value = true
+  loginError.value = ''
+  
+  try {
+    const response = await axios.post('/api/auth/admin', {
+      password: loginPassword.value
+    })
+    
+    if (response.data.success) {
+      isAuthenticated.value = true
+      loginPassword.value = ''
+      // Store authentication state in session storage
+      sessionStorage.setItem('adminAuthenticated', 'true')
+    }
+  } catch (error) {
+    if (error.response?.status === 401) {
+      loginError.value = 'Invalid password'
+    } else {
+      loginError.value = 'Authentication failed. Please try again.'
+    }
+  } finally {
+    authenticating.value = false
+  }
+}
+
+const logout = () => {
+  isAuthenticated.value = false
+  sessionStorage.removeItem('adminAuthenticated')
+}
+
+// Check authentication state on component load
+const checkAuthState = () => {
+  const authenticated = sessionStorage.getItem('adminAuthenticated')
+  if (authenticated === 'true') {
+    isAuthenticated.value = true
+  }
+}
+
 // Lifecycle
 onMounted(async () => {
-  loadSermons()
-  await loadBlogs()
-  await loadMusic()
+  checkAuthState()
+  if (isAuthenticated.value) {
+    loadSermons()
+    await loadBlogs()
+    await loadMusic()
+  }
 })
 </script>
 
