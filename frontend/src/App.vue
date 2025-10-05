@@ -13,7 +13,7 @@
     </div>
     <router-view />
   </div>
-  <Drawer v-model:visible="showMenu" header="Menu" position="right">
+  <Drawer v-model:visible="showMenu" style="background-color:#000;" header="Menu" position="right">
       <div class="grid grid-cols-1 gap-2">
         <router-link to="/" @click="showMenu=false">Home</router-link>
         <router-link to="/sermons" @click="showMenu=false">Sermons</router-link>
