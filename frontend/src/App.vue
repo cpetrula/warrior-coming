@@ -19,7 +19,7 @@
         <router-link to="/sermons" @click="showMenu=false">Sermons</router-link>
         <router-link to="/blogs" @click="showMenu=false">Blogs</router-link>
         <router-link to="/music" @click="showMenu=false">Music</router-link>
-        <router-link to="/shop" @click="showMenu=false">Shop</router-link>
+        <a href="https://warrior-coming.myspreadshop.com/all" @click="showMenu=false" target="_shop">Shop</a>
         <router-link to="/admin"  @click="showMenu=false">Admin</router-link>
       </div>
       
