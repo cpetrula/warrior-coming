@@ -12,14 +12,25 @@
       </div>
     </div>
     <router-view />
+    <footer class="site-footer">
+      <div class="footer-links">
+        <router-link to="/privacy">Privacy Policy</router-link>
+        <span class="footer-divider">|</span>
+        <router-link to="/terms">Terms of Service</router-link>
+      </div>
+      <div class="footer-copyright">
+        &copy; {{ currentYear }} Warrior Coming. All rights reserved.
+      </div>
+    </footer>
   </div>
   <Drawer v-model:visible="showMenu" style="background-color:#000;" header="Menu" position="right">
       <div class="grid grid-cols-1 gap-2">
         <router-link to="/" @click="showMenu=false">Home</router-link>
         <router-link to="/sermons" @click="showMenu=false">Sermons</router-link>
-        <router-link to="/blogs" @click="showMenu=false">Blogs</router-link>
         <router-link to="/music" @click="showMenu=false">Music</router-link>
         <a href="https://warrior-coming.myspreadshop.com/all" @click="showMenu=false" target="_shop">Shop</a>
+        <router-link to="/about" @click="showMenu=false">About Us</router-link>
+        <router-link to="/contact" @click="showMenu=false">Contact Us</router-link>
         <router-link to="/admin"  @click="showMenu=false">Admin</router-link>
       </div>
       
@@ -32,6 +43,7 @@ import { PrimeIcons } from '@primevue/core/api';
 import { ref } from 'vue'
 
 const showMenu = ref(false);
+const currentYear = new Date().getFullYear();
 
 </script>
 
@@ -76,4 +88,35 @@ a {
       margin: 10px 10px 0 0;
     }
   }
+
+.site-footer {
+  background-color: #111;
+  padding: 30px 20px;
+  text-align: center;
+  border-top: 1px solid #333;
+}
+
+.footer-links {
+  margin-bottom: 15px;
+}
+
+.footer-links a {
+  color: #999;
+  text-decoration: none;
+  font-size: 0.9em;
+}
+
+.footer-links a:hover {
+  color: white;
+}
+
+.footer-divider {
+  color: #555;
+  margin: 0 15px;
+}
+
+.footer-copyright {
+  color: #666;
+  font-size: 0.8em;
+}
 </style>
