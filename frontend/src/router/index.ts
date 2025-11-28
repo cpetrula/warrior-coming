@@ -5,6 +5,10 @@ import Blogs from '../views/Blogs.vue';
 import Music from '../views/Music.vue';
 import Shop from '../views/Shop.vue';
 import Admin from '../views/Admin.vue';
+import AboutUs from '../views/AboutUs.vue';
+import ContactUs from '../views/ContactUs.vue';
+import PrivacyPolicy from '../views/PrivacyPolicy.vue';
+import TermsOfService from '../views/TermsOfService.vue';
 
 const routes = [
   { path: '/', component: Home },
@@ -14,6 +18,10 @@ const routes = [
   { path: '/music', component: Music },
   { path: '/shop', component: Shop },
   { path: '/admin', component: Admin },
+  { path: '/about', component: AboutUs },
+  { path: '/contact', component: ContactUs },
+  { path: '/privacy', component: PrivacyPolicy },
+  { path: '/terms', component: TermsOfService },
 ];
 
 const router = createRouter({
