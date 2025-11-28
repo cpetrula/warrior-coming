@@ -19,7 +19,7 @@
         <router-link to="/terms">Terms of Service</router-link>
       </div>
       <div class="footer-copyright">
-        &copy; {{ new Date().getFullYear() }} Warrior Coming. All rights reserved.
+        &copy; {{ currentYear }} Warrior Coming. All rights reserved.
       </div>
     </footer>
   </div>
@@ -43,6 +43,7 @@ import { PrimeIcons } from '@primevue/core/api';
 import { ref } from 'vue'
 
 const showMenu = ref(false);
+const currentYear = new Date().getFullYear();
 
 </script>
 
