@@ -1,11 +1,13 @@
 import mysql from 'mysql2/promise'
+import dotenv from 'dotenv';
+dotenv.config();
 
 // Database configuration with connection pool limits
 const dbConfig = {
-  host: process.env.DB_HOST || '192.250.227.239',
-  user: process.env.DB_USER || 'warriorc_admindb',
-  password: process.env.DB_PASSWORD || 'StayFit2025!',
-  database: process.env.DB_NAME || 'warriorc_db',
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
   port: process.env.DB_PORT || 3306,
   waitForConnections: true,
   // Connection pool configuration - using only confirmed valid mysql2 options

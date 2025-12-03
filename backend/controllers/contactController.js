@@ -1,4 +1,6 @@
 import nodemailer from 'nodemailer'
+import dotenv from 'dotenv';
+dotenv.config();
 
 // In-memory rate limiting store
 // In production, you'd want to use Redis or a database
@@ -148,7 +150,7 @@ class ContactController {
       // Create email content
       const emailContent = {
         from: process.env.SMTP_FROM || 'noreply@warriorcoming.com',
-        to: 'contact@warriorcoming.com',
+        to: 'info@warriorcoming.com',
         replyTo: sanitizedEmail,
         subject: `Contact Form Submission from ${sanitizedName}`,
         text: `
