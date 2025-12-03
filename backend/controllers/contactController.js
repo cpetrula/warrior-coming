@@ -19,6 +19,22 @@ setInterval(() => {
 }, 60000) // Clean up every minute
 
 /**
+ * HTML escape function to prevent XSS attacks
+ * @param {string} str - The string to escape
+ * @returns {string} - The escaped string
+ */
+const escapeHtml = (str) => {
+  const htmlEscapes = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }
+  return str.replace(/[&<>"']/g, char => htmlEscapes[char])
+}
+
+/**
  * Check if the request is rate limited
  * @param {string} ip - The client IP address
  * @returns {object} - { limited: boolean, remaining: number, resetTime: number }
@@ -124,10 +140,10 @@ class ContactController {
         return res.status(400).json({ error: 'Please enter a valid email address' })
       }
 
-      // Sanitize inputs (basic XSS prevention)
-      const sanitizedName = name.trim().substring(0, 100)
-      const sanitizedEmail = email.trim().substring(0, 254)
-      const sanitizedMessage = message.trim().substring(0, 5000)
+      // Sanitize inputs and escape HTML for XSS prevention
+      const sanitizedName = escapeHtml(name.trim().substring(0, 100))
+      const sanitizedEmail = escapeHtml(email.trim().substring(0, 254))
+      const sanitizedMessage = escapeHtml(message.trim().substring(0, 5000))
 
       // Create email content
       const emailContent = {
