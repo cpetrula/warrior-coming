@@ -11,22 +11,27 @@ import PrivacyPolicy from '../views/PrivacyPolicy.vue';
 import TermsOfService from '../views/TermsOfService.vue';
 
 const routes = [
-  { path: '/', component: Home },
-  { path: '/sermons', component: Sermons },
-  { path: '/sermons/:id', component: Sermons, props: true },
+  { path: '/', component: Home, meta:{title: 'Home - Warrior Coming'} },
+  { path: '/sermons', component: Sermons, meta:{title: 'Sermons - Warrior Coming'} },
+  { path: '/sermons/:id', component: Sermons, props: true, meta:{title: 'Sermons - Warrior Coming'} },
   { path: '/blogs', component: Blogs },
-  { path: '/music', component: Music },
+  { path: '/music', component: Music, meta:{title: 'Music - Warrior Coming'} },
   { path: '/shop', component: Shop },
   { path: '/admin', component: Admin },
-  { path: '/about', component: AboutUs },
-  { path: '/contact', component: ContactUs },
-  { path: '/privacy', component: PrivacyPolicy },
-  { path: '/terms', component: TermsOfService },
+  { path: '/about', component: AboutUs, meta:{title: 'About Us - Warrior Coming'} },
+  { path: '/contact', component: ContactUs, meta:{title: 'Contact Us - Warrior Coming'} },
+  { path: '/privacy', component: PrivacyPolicy, meta:{title: 'Privacy Policy - Warrior Coming'} },
+  { path: '/terms', component: TermsOfService, meta:{title: 'Terms Of Service - Warrior Coming'} },
 ];
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
+});
+
+router.beforeEach((to, from, next) => {
+  document.title = to.meta.title || 'Warrior Coming'; // Fallback title
+  next();
 });
 
 export default router;
