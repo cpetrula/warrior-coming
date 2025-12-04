@@ -7,6 +7,7 @@ import Shop from '../views/Shop.vue';
 import Admin from '../views/Admin.vue';
 import AboutUs from '../views/AboutUs.vue';
 import ContactUs from '../views/ContactUs.vue';
+import ThankYou from '../views/ThankYou.vue';
 import PrivacyPolicy from '../views/PrivacyPolicy.vue';
 import TermsOfService from '../views/TermsOfService.vue';
 import NotFound from '../views/NotFound.vue';
@@ -21,6 +22,7 @@ const routes = [
   { path: '/admin', component: Admin, meta: { canonical: 'https://warriorcoming.com/admin' } },
   { path: '/about', component: AboutUs, meta: { title: 'About Us - Warrior Coming', canonical: 'https://warriorcoming.com/about' } },
   { path: '/contact', component: ContactUs, meta: { title: 'Contact Us - Warrior Coming', canonical: 'https://warriorcoming.com/contact' } },
+  { path: '/thank-you', component: ThankYou, meta: { title: 'Thank You - Warrior Coming', canonical: 'https://warriorcoming.com/thank-you' } },
   { path: '/privacy', component: PrivacyPolicy, meta: { title: 'Privacy Policy - Warrior Coming', canonical: 'https://warriorcoming.com/privacy' } },
   { path: '/terms', component: TermsOfService, meta: { title: 'Terms Of Service - Warrior Coming', canonical: 'https://warriorcoming.com/terms' } },
   { path: '/:pathMatch(.*)*', component: NotFound, meta: { title: 'Page Not Found - Warrior Coming' } },
