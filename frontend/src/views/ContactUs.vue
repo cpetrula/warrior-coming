@@ -15,20 +15,8 @@
       <section class="contact-section contact-form-section">
         <h2>Send Us a Message</h2>
         
-        <!-- Success Message -->
-        <div v-if="formSubmitted" class="success-message">
-          <i class="pi pi-check-circle"></i>
-          <p>{{ successMessage }}</p>
-          <Button 
-            label="Send Another Message" 
-            @click="resetForm" 
-            class="mt-4"
-            outlined
-          />
-        </div>
-
         <!-- Contact Form -->
-        <form v-else @submit.prevent="submitForm" class="contact-form">
+        <form @submit.prevent="submitForm" class="contact-form">
           <!-- Honeypot field - hidden from users, visible to bots -->
           <div class="honeypot-field" aria-hidden="true">
             <label for="website">Website</label>
@@ -136,10 +124,13 @@
 
 <script lang="ts" setup>
 import { ref, reactive } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
 import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
 import Button from 'primevue/button'
+
+const router = useRouter()
 
 // Form state
 const formData = reactive({
@@ -157,8 +148,6 @@ const errors = reactive({
 })
 
 const submitting = ref(false)
-const formSubmitted = ref(false)
-const successMessage = ref('')
 
 // Validation
 const validateForm = () => {
@@ -217,8 +206,7 @@ const submitForm = async () => {
     })
 
     if (response.data.success) {
-      formSubmitted.value = true
-      successMessage.value = response.data.message || 'Thank you for your message. We will get back to you soon.'
+      router.push('/thank-you')
     }
   } catch (error: any) {
     if (error.response?.status === 429) {
@@ -232,20 +220,6 @@ const submitForm = async () => {
   } finally {
     submitting.value = false
   }
-}
-
-// Reset form
-const resetForm = () => {
-  formData.name = ''
-  formData.email = ''
-  formData.message = ''
-  formData.website = ''
-  formSubmitted.value = false
-  successMessage.value = ''
-  errors.name = ''
-  errors.email = ''
-  errors.message = ''
-  errors.submit = ''
 }
 </script>
 
@@ -383,24 +357,6 @@ h2 {
   width: 0;
   overflow: hidden;
   pointer-events: none;
-}
-
-/* Success message */
-.success-message {
-  text-align: center;
-  padding: 40px 20px;
-}
-
-.success-message i {
-  font-size: 3em;
-  color: #4ade80;
-  margin-bottom: 20px;
-}
-
-.success-message p {
-  font-size: 1.2em;
-  color: #ccc;
-  margin-bottom: 20px;
 }
 
 /* Error message */
