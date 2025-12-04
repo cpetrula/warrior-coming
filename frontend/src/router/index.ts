@@ -9,6 +9,7 @@ import AboutUs from '../views/AboutUs.vue';
 import ContactUs from '../views/ContactUs.vue';
 import PrivacyPolicy from '../views/PrivacyPolicy.vue';
 import TermsOfService from '../views/TermsOfService.vue';
+import NotFound from '../views/NotFound.vue';
 
 const routes = [
   { path: '/', component: Home, meta: { title: 'Home - Warrior Coming', canonical: 'https://warriorcoming.com/' } },
@@ -22,6 +23,7 @@ const routes = [
   { path: '/contact', component: ContactUs, meta: { title: 'Contact Us - Warrior Coming', canonical: 'https://warriorcoming.com/contact' } },
   { path: '/privacy', component: PrivacyPolicy, meta: { title: 'Privacy Policy - Warrior Coming', canonical: 'https://warriorcoming.com/privacy' } },
   { path: '/terms', component: TermsOfService, meta: { title: 'Terms Of Service - Warrior Coming', canonical: 'https://warriorcoming.com/terms' } },
+  { path: '/:pathMatch(.*)*', component: NotFound, meta: { title: 'Page Not Found - Warrior Coming' } },
 ];
 
 const router = createRouter({
