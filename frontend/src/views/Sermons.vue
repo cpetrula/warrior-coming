@@ -251,6 +251,19 @@
               </div>
             </template>
           </Card>
+          
+          <!-- Notes Text -->
+          <Card v-if="selectedSermon.notes">
+            <template #title>
+              <span class="text-lg font-semibold flex items-center">
+                <i class="pi pi-file-edit mr-2"></i>
+                Notes
+              </span>
+            </template>
+            <template #content>
+              <div class="prose max-w-none text-gray-300 whitespace-pre-wrap">{{ selectedSermon.notes }}</div>
+            </template>
+          </Card>
         </div>
         
         <!-- No Sermon Selected -->
@@ -290,6 +303,7 @@ interface Sermon {
   imageFile?: string
   notesFile?: string
   youtubeId?: string
+  notes?: string
   order: number
   createdAt: string
   images?: SermonImage[]

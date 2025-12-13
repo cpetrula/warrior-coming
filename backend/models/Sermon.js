@@ -38,7 +38,7 @@ class Sermon {
   async getAll() {
     try {
       const [rows] = await pool.execute(
-        'SELECT id, title, date, description, audio_file as audioFile, image_file as imageFile, notes_file as notesFile, youtube_id as youtubeId, sermon_order as `order`, created_at as createdAt FROM sermons ORDER BY sermon_order ASC'
+        'SELECT id, title, date, description, audio_file as audioFile, image_file as imageFile, notes_file as notesFile, youtube_id as youtubeId, notes, sermon_order as `order`, created_at as createdAt FROM sermons ORDER BY sermon_order ASC'
       )
       
       // Get images for each sermon
@@ -65,7 +65,7 @@ class Sermon {
   async getById(id) {
     try {
       const [rows] = await pool.execute(
-        'SELECT id, title, date, description, audio_file as audioFile, image_file as imageFile, notes_file as notesFile, youtube_id as youtubeId, sermon_order as `order`, created_at as createdAt FROM sermons WHERE id = ?',
+        'SELECT id, title, date, description, audio_file as audioFile, image_file as imageFile, notes_file as notesFile, youtube_id as youtubeId, notes, sermon_order as `order`, created_at as createdAt FROM sermons WHERE id = ?',
         [id]
       )
       if (rows.length === 0) return null
@@ -88,7 +88,7 @@ class Sermon {
   /**
    * Create a new sermon
    */
-  async create({ title, date, description, audioFile, imageFile, notesFile, youtubeId, imageFiles = [] }) {
+  async create({ title, date, description, audioFile, imageFile, notesFile, youtubeId, notes, imageFiles = [] }) {
     try {
       // Get the next order number
       const [maxOrderResult] = await pool.execute(
@@ -97,8 +97,8 @@ class Sermon {
       const nextOrder = maxOrderResult[0].nextOrder
 
       const [result] = await pool.execute(
-        'INSERT INTO sermons (title, date, description, audio_file, image_file, notes_file, youtube_id, sermon_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-        [title, date, description || '', audioFile, imageFile || null, notesFile || null, youtubeId || null, nextOrder]
+        'INSERT INTO sermons (title, date, description, audio_file, image_file, notes_file, youtube_id, notes, sermon_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [title, date, description || '', audioFile, imageFile || null, notesFile || null, youtubeId || null, notes || null, nextOrder]
       )
 
       const sermonId = result.insertId
@@ -199,6 +199,10 @@ class Sermon {
       if (updateData.youtubeId !== undefined) {
         updates.push('youtube_id = ?')
         values.push(updateData.youtubeId)
+      }
+      if (updateData.notes !== undefined) {
+        updates.push('notes = ?')
+        values.push(updateData.notes)
       }
 
       if (updates.length > 0) {

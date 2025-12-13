@@ -378,6 +378,18 @@
                 <small v-else class="text-gray-500">Enter just the video ID from the YouTube URL, not the full URL</small>
               </div>
               
+              <div class="field md:col-span-2">
+                <label for="notes" class="block text-sm font-medium mb-2">Notes (Optional)</label>
+                <Textarea 
+                  id="notes"
+                  v-model="newSermon.notes" 
+                  placeholder="Enter detailed sermon notes (can be lengthy)"
+                  rows="8"
+                  class="w-full"
+                />
+                <small class="text-gray-500">Additional free form text for sermon notes</small>
+              </div>
+              
               <div class="field">
                 <label for="audioFile" class="block text-sm font-medium mb-2">Audio File *</label>
                 <FileUpload 
@@ -614,6 +626,18 @@
           />
           <small v-if="editErrors.youtubeId" class="p-error">{{ editErrors.youtubeId }}</small>
           <small v-else class="text-gray-500">Enter just the video ID from the YouTube URL, not the full URL</small>
+        </div>
+        
+        <div class="field">
+          <label for="editNotes" class="block text-sm font-medium mb-2">Notes (Optional)</label>
+          <Textarea 
+            id="editNotes"
+            v-model="editingSermon.notes" 
+            placeholder="Enter detailed sermon notes (can be lengthy)"
+            rows="8"
+            class="w-full"
+          />
+          <small class="text-gray-500">Additional free form text for sermon notes</small>
         </div>
         
         <div class="field">
@@ -883,6 +907,7 @@ interface Sermon {
   imageFile?: string
   notesFile?: string
   youtubeId?: string
+  notes?: string
   order: number
   createdAt: string
   images?: SermonImage[]
@@ -937,7 +962,8 @@ const newSermon = ref({
   title: '',
   date: null as Date | null,
   description: '',
-  youtubeId: ''
+  youtubeId: '',
+  notes: ''
 })
 
 const editingSermon = ref({
@@ -946,6 +972,7 @@ const editingSermon = ref({
   date: null as Date | null,
   description: '',
   youtubeId: '',
+  notes: '',
   images: [] as SermonImage[]
 })
 
@@ -1085,6 +1112,7 @@ const uploadSermon = async () => {
     formData.append('date', newSermon.value.date!.toISOString().split('T')[0])
     formData.append('description', newSermon.value.description)
     formData.append('youtubeId', newSermon.value.youtubeId)
+    formData.append('notes', newSermon.value.notes)
     formData.append('audioFile', selectedAudioFile.value!)
     
     if (selectedImageFile.value) {
@@ -1109,7 +1137,7 @@ const uploadSermon = async () => {
     })
     
     // Reset form
-    newSermon.value = { title: '', date: null, description: '', youtubeId: '' }
+    newSermon.value = { title: '', date: null, description: '', youtubeId: '', notes: '' }
     selectedAudioFile.value = null
     selectedImageFile.value = null
     selectedNotesFile.value = null
@@ -1223,6 +1251,7 @@ const startEdit = (sermon: Sermon) => {
     date: new Date(sermon.date),
     description: sermon.description || '',
     youtubeId: sermon.youtubeId || '',
+    notes: sermon.notes || '',
     images: sermon.images || []
   }
   selectedEditAudioFile.value = null
@@ -1237,7 +1266,7 @@ const startEdit = (sermon: Sermon) => {
 const cancelEdit = () => {
   editing.value = null
   showEditDialog.value = false
-  editingSermon.value = { id: '', title: '', date: null, description: '', youtubeId: '', images: [] }
+  editingSermon.value = { id: '', title: '', date: null, description: '', youtubeId: '', notes: '', images: [] }
   selectedEditAudioFile.value = null
   selectedEditImageFile.value = null
   selectedEditNotesFile.value = null
@@ -1292,6 +1321,7 @@ const updateSermon = async () => {
     formData.append('date', editingSermon.value.date!.toISOString().split('T')[0])
     formData.append('description', editingSermon.value.description)
     formData.append('youtubeId', editingSermon.value.youtubeId)
+    formData.append('notes', editingSermon.value.notes)
     
     if (selectedEditAudioFile.value) {
       formData.append('audioFile', selectedEditAudioFile.value)
