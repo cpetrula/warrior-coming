@@ -1,5 +1,5 @@
 -- Migration: Add youtube_id column to sermons table
--- Date: 2025
+-- Date: 2025-12-13
 
 USE warriorc_db;
 
