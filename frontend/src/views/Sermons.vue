@@ -156,11 +156,11 @@
           </Card>//-->
           
           <!-- YouTube Video Player -->
-          <Card v-if="selectedSermon.youtubeId">
+          <Card v-if="validatedYoutubeId">
             <template #content>
               <div class="youtube-player-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
                 <iframe 
-                  :src="`https://www.youtube.com/embed/${selectedSermon.youtubeId}`"
+                  :src="`https://www.youtube.com/embed/${validatedYoutubeId}`"
                   style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
                   frameborder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -324,6 +324,22 @@ const responsiveOptions = ref([
 ])
 
 // Computed properties
+// Validate and sanitize YouTube ID
+const validatedYoutubeId = computed(() => {
+  if (!selectedSermon.value?.youtubeId) return null
+  
+  const youtubeId = selectedSermon.value.youtubeId
+  // YouTube IDs are 11 characters: letters, numbers, hyphens, and underscores only
+  const youtubeIdPattern = /^[a-zA-Z0-9_-]{11}$/
+  
+  if (youtubeIdPattern.test(youtubeId)) {
+    return youtubeId
+  }
+  
+  console.warn('Invalid YouTube ID format:', youtubeId)
+  return null
+})
+
 const galleryImages = computed(() => {
   if (!selectedSermon.value) return []
   

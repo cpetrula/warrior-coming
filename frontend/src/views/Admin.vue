@@ -372,8 +372,10 @@
                   v-model="newSermon.youtubeId" 
                   placeholder="Enter YouTube video ID (e.g., dQw4w9WgXcQ)"
                   class="w-full"
+                  :class="{ 'p-invalid': errors.youtubeId }"
                 />
-                <small class="text-gray-500">Enter just the video ID from the YouTube URL, not the full URL</small>
+                <small v-if="errors.youtubeId" class="p-error">{{ errors.youtubeId }}</small>
+                <small v-else class="text-gray-500">Enter just the video ID from the YouTube URL, not the full URL</small>
               </div>
               
               <div class="field">
@@ -608,8 +610,10 @@
             v-model="editingSermon.youtubeId" 
             placeholder="Enter YouTube video ID (e.g., dQw4w9WgXcQ)"
             class="w-full"
+            :class="{ 'p-invalid': editErrors.youtubeId }"
           />
-          <small class="text-gray-500">Enter just the video ID from the YouTube URL, not the full URL</small>
+          <small v-if="editErrors.youtubeId" class="p-error">{{ editErrors.youtubeId }}</small>
+          <small v-else class="text-gray-500">Enter just the video ID from the YouTube URL, not the full URL</small>
         </div>
         
         <div class="field">
@@ -983,7 +987,8 @@ const selectedEditMusicFile = ref<File | null>(null)
 const errors = ref({
   title: '',
   date: '',
-  audioFile: ''
+  audioFile: '',
+  youtubeId: ''
 })
 
 const blogErrors = ref({
@@ -1009,7 +1014,8 @@ const editMusicErrors = ref({
 
 const editErrors = ref({
   title: '',
-  date: ''
+  date: '',
+  youtubeId: ''
 })
 
 // Computed properties
@@ -1020,8 +1026,17 @@ const isFormValid = computed(() => {
 })
 
 // Methods
+// Validate YouTube ID format
+const validateYoutubeId = (youtubeId: string) => {
+  if (!youtubeId || youtubeId === '') {
+    return true // Empty is valid (optional field)
+  }
+  const youtubeIdPattern = /^[a-zA-Z0-9_-]{11}$/
+  return youtubeIdPattern.test(youtubeId)
+}
+
 const validateForm = () => {
-  errors.value = { title: '', date: '', audioFile: '' }
+  errors.value = { title: '', date: '', audioFile: '', youtubeId: '' }
   
   if (!newSermon.value.title.trim()) {
     errors.value.title = 'Title is required'
@@ -1033,6 +1048,10 @@ const validateForm = () => {
   
   if (!selectedAudioFile.value) {
     errors.value.audioFile = 'Audio file is required'
+  }
+  
+  if (newSermon.value.youtubeId && !validateYoutubeId(newSermon.value.youtubeId)) {
+    errors.value.youtubeId = 'Invalid YouTube ID. Must be 11 characters (letters, numbers, hyphens, underscores)'
   }
   
   return Object.values(errors.value).every(error => error === '')
@@ -1212,7 +1231,7 @@ const startEdit = (sermon: Sermon) => {
   selectedEditImageFiles.value = []
   currentSermonImage.value = sermon.imageFile || null
   imageDeleted.value = false
-  editErrors.value = { title: '', date: '' }
+  editErrors.value = { title: '', date: '', youtubeId: '' }
 }
 
 const cancelEdit = () => {
@@ -1225,7 +1244,7 @@ const cancelEdit = () => {
   selectedEditImageFiles.value = []
   currentSermonImage.value = null
   imageDeleted.value = false
-  editErrors.value = { title: '', date: '' }
+  editErrors.value = { title: '', date: '', youtubeId: '' }
 }
 
 const removeCurrentImage = async () => {
@@ -1245,7 +1264,7 @@ const removeCurrentImage = async () => {
 }
 
 const validateEditForm = () => {
-  editErrors.value = { title: '', date: '' }
+  editErrors.value = { title: '', date: '', youtubeId: '' }
   
   if (!editingSermon.value.title.trim()) {
     editErrors.value.title = 'Title is required'
@@ -1253,6 +1272,10 @@ const validateEditForm = () => {
   
   if (!editingSermon.value.date) {
     editErrors.value.date = 'Date is required'
+  }
+  
+  if (editingSermon.value.youtubeId && !validateYoutubeId(editingSermon.value.youtubeId)) {
+    editErrors.value.youtubeId = 'Invalid YouTube ID. Must be 11 characters (letters, numbers, hyphens, underscores)'
   }
   
   return Object.values(editErrors.value).every(error => error === '')

@@ -3,6 +3,18 @@ import { uploadsDir } from '../config/multer.js'
 
 class SermonController {
   /**
+   * Validate YouTube ID format
+   * YouTube IDs are 11 characters long and contain only alphanumeric, hyphens, and underscores
+   */
+  validateYoutubeId(youtubeId) {
+    if (!youtubeId || youtubeId === '') {
+      return true // Empty is valid (optional field)
+    }
+    const youtubeIdPattern = /^[a-zA-Z0-9_-]{11}$/
+    return youtubeIdPattern.test(youtubeId)
+  }
+
+  /**
    * Get all sermons
    */
   async getAllSermons(req, res) {
@@ -44,6 +56,11 @@ class SermonController {
         return res.status(400).json({ error: 'Audio file is required' })
       }
 
+      // Validate YouTube ID if provided
+      if (youtubeId && !this.validateYoutubeId(youtubeId)) {
+        return res.status(400).json({ error: 'Invalid YouTube ID format. Must be 11 characters containing only letters, numbers, hyphens, and underscores.' })
+      }
+
       const sermonData = {
         title,
         date,
@@ -76,6 +93,11 @@ class SermonController {
       
       if (!title || !date) {
         return res.status(400).json({ error: 'Title and date are required' })
+      }
+
+      // Validate YouTube ID if provided
+      if (youtubeId && !this.validateYoutubeId(youtubeId)) {
+        return res.status(400).json({ error: 'Invalid YouTube ID format. Must be 11 characters containing only letters, numbers, hyphens, and underscores.' })
       }
 
       const updateData = {
