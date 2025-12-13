@@ -365,6 +365,19 @@
                 <small class="text-gray-500">Brief description limited to 3-4 sentences</small>
               </div>
               
+              <div class="field md:col-span-2">
+                <label for="youtubeId" class="block text-sm font-medium mb-2">YouTube Video ID (Optional)</label>
+                <InputText 
+                  id="youtubeId"
+                  v-model="newSermon.youtubeId" 
+                  placeholder="Enter YouTube video ID (e.g., dQw4w9WgXcQ)"
+                  class="w-full"
+                  :class="{ 'p-invalid': errors.youtubeId }"
+                />
+                <small v-if="errors.youtubeId" class="p-error">{{ errors.youtubeId }}</small>
+                <small v-else class="text-gray-500">Enter just the video ID from the YouTube URL, not the full URL</small>
+              </div>
+              
               <div class="field">
                 <label for="audioFile" class="block text-sm font-medium mb-2">Audio File *</label>
                 <FileUpload 
@@ -588,6 +601,19 @@
             rows="4"
             class="w-full"
           />
+        </div>
+        
+        <div class="field">
+          <label for="editYoutubeId" class="block text-sm font-medium mb-2">YouTube Video ID (Optional)</label>
+          <InputText 
+            id="editYoutubeId"
+            v-model="editingSermon.youtubeId" 
+            placeholder="Enter YouTube video ID (e.g., dQw4w9WgXcQ)"
+            class="w-full"
+            :class="{ 'p-invalid': editErrors.youtubeId }"
+          />
+          <small v-if="editErrors.youtubeId" class="p-error">{{ editErrors.youtubeId }}</small>
+          <small v-else class="text-gray-500">Enter just the video ID from the YouTube URL, not the full URL</small>
         </div>
         
         <div class="field">
@@ -856,6 +882,7 @@ interface Sermon {
   audioFile: string
   imageFile?: string
   notesFile?: string
+  youtubeId?: string
   order: number
   createdAt: string
   images?: SermonImage[]
@@ -909,7 +936,8 @@ const showEditMusicDialog = ref(false)
 const newSermon = ref({
   title: '',
   date: null as Date | null,
-  description: ''
+  description: '',
+  youtubeId: ''
 })
 
 const editingSermon = ref({
@@ -917,6 +945,7 @@ const editingSermon = ref({
   title: '',
   date: null as Date | null,
   description: '',
+  youtubeId: '',
   images: [] as SermonImage[]
 })
 
@@ -958,7 +987,8 @@ const selectedEditMusicFile = ref<File | null>(null)
 const errors = ref({
   title: '',
   date: '',
-  audioFile: ''
+  audioFile: '',
+  youtubeId: ''
 })
 
 const blogErrors = ref({
@@ -984,7 +1014,8 @@ const editMusicErrors = ref({
 
 const editErrors = ref({
   title: '',
-  date: ''
+  date: '',
+  youtubeId: ''
 })
 
 // Computed properties
@@ -995,8 +1026,17 @@ const isFormValid = computed(() => {
 })
 
 // Methods
+// Validate YouTube ID format
+const validateYoutubeId = (youtubeId: string) => {
+  if (!youtubeId || youtubeId === '') {
+    return true // Empty is valid (optional field)
+  }
+  const youtubeIdPattern = /^[a-zA-Z0-9_-]{11}$/
+  return youtubeIdPattern.test(youtubeId)
+}
+
 const validateForm = () => {
-  errors.value = { title: '', date: '', audioFile: '' }
+  errors.value = { title: '', date: '', audioFile: '', youtubeId: '' }
   
   if (!newSermon.value.title.trim()) {
     errors.value.title = 'Title is required'
@@ -1008,6 +1048,10 @@ const validateForm = () => {
   
   if (!selectedAudioFile.value) {
     errors.value.audioFile = 'Audio file is required'
+  }
+  
+  if (newSermon.value.youtubeId && !validateYoutubeId(newSermon.value.youtubeId)) {
+    errors.value.youtubeId = 'Invalid YouTube ID. Must be 11 characters (letters, numbers, hyphens, underscores)'
   }
   
   return Object.values(errors.value).every(error => error === '')
@@ -1040,6 +1084,7 @@ const uploadSermon = async () => {
     formData.append('title', newSermon.value.title)
     formData.append('date', newSermon.value.date!.toISOString().split('T')[0])
     formData.append('description', newSermon.value.description)
+    formData.append('youtubeId', newSermon.value.youtubeId)
     formData.append('audioFile', selectedAudioFile.value!)
     
     if (selectedImageFile.value) {
@@ -1064,7 +1109,7 @@ const uploadSermon = async () => {
     })
     
     // Reset form
-    newSermon.value = { title: '', date: null, description: '' }
+    newSermon.value = { title: '', date: null, description: '', youtubeId: '' }
     selectedAudioFile.value = null
     selectedImageFile.value = null
     selectedNotesFile.value = null
@@ -1177,6 +1222,7 @@ const startEdit = (sermon: Sermon) => {
     title: sermon.title,
     date: new Date(sermon.date),
     description: sermon.description || '',
+    youtubeId: sermon.youtubeId || '',
     images: sermon.images || []
   }
   selectedEditAudioFile.value = null
@@ -1185,20 +1231,20 @@ const startEdit = (sermon: Sermon) => {
   selectedEditImageFiles.value = []
   currentSermonImage.value = sermon.imageFile || null
   imageDeleted.value = false
-  editErrors.value = { title: '', date: '' }
+  editErrors.value = { title: '', date: '', youtubeId: '' }
 }
 
 const cancelEdit = () => {
   editing.value = null
   showEditDialog.value = false
-  editingSermon.value = { id: '', title: '', date: null, description: '', images: [] }
+  editingSermon.value = { id: '', title: '', date: null, description: '', youtubeId: '', images: [] }
   selectedEditAudioFile.value = null
   selectedEditImageFile.value = null
   selectedEditNotesFile.value = null
   selectedEditImageFiles.value = []
   currentSermonImage.value = null
   imageDeleted.value = false
-  editErrors.value = { title: '', date: '' }
+  editErrors.value = { title: '', date: '', youtubeId: '' }
 }
 
 const removeCurrentImage = async () => {
@@ -1218,7 +1264,7 @@ const removeCurrentImage = async () => {
 }
 
 const validateEditForm = () => {
-  editErrors.value = { title: '', date: '' }
+  editErrors.value = { title: '', date: '', youtubeId: '' }
   
   if (!editingSermon.value.title.trim()) {
     editErrors.value.title = 'Title is required'
@@ -1226,6 +1272,10 @@ const validateEditForm = () => {
   
   if (!editingSermon.value.date) {
     editErrors.value.date = 'Date is required'
+  }
+  
+  if (editingSermon.value.youtubeId && !validateYoutubeId(editingSermon.value.youtubeId)) {
+    editErrors.value.youtubeId = 'Invalid YouTube ID. Must be 11 characters (letters, numbers, hyphens, underscores)'
   }
   
   return Object.values(editErrors.value).every(error => error === '')
@@ -1241,6 +1291,7 @@ const updateSermon = async () => {
     formData.append('title', editingSermon.value.title)
     formData.append('date', editingSermon.value.date!.toISOString().split('T')[0])
     formData.append('description', editingSermon.value.description)
+    formData.append('youtubeId', editingSermon.value.youtubeId)
     
     if (selectedEditAudioFile.value) {
       formData.append('audioFile', selectedEditAudioFile.value)

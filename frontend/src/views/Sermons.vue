@@ -154,6 +154,22 @@
               </audio>
             </template>
           </Card>//-->
+          
+          <!-- YouTube Video Player -->
+          <Card v-if="validatedYoutubeId">
+            <template #content>
+              <div class="youtube-player-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+                <iframe 
+                  :src="`https://www.youtube.com/embed/${validatedYoutubeId}`"
+                  style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen
+                  :title="`${selectedSermon.title} - YouTube Video`"
+                />
+              </div>
+            </template>
+          </Card>
+          
           <!-- Image Gallery -->
           <Card v-if="galleryImages.length > 0">
           
@@ -273,6 +289,7 @@ interface Sermon {
   audioFile: string
   imageFile?: string
   notesFile?: string
+  youtubeId?: string
   order: number
   createdAt: string
   images?: SermonImage[]
@@ -306,6 +323,17 @@ const responsiveOptions = ref([
 ])
 
 // Computed properties
+// Validate and sanitize YouTube ID
+const validatedYoutubeId = computed(() => {
+  if (!selectedSermon.value?.youtubeId) return null
+  
+  const youtubeId = selectedSermon.value.youtubeId
+  // YouTube IDs are 11 characters: letters, numbers, hyphens, and underscores only
+  const youtubeIdPattern = /^[a-zA-Z0-9_-]{11}$/
+  
+  return youtubeIdPattern.test(youtubeId) ? youtubeId : null
+})
+
 const galleryImages = computed(() => {
   if (!selectedSermon.value) return []
   
