@@ -34,7 +34,7 @@ class SermonController {
    */
   async createSermon(req, res) {
     try {
-      const { title, date, description } = req.body
+      const { title, date, description, youtubeId } = req.body
       
       if (!title || !date) {
         return res.status(400).json({ error: 'Title and date are required' })
@@ -48,6 +48,7 @@ class SermonController {
         title,
         date,
         description,
+        youtubeId,
         audioFile: req.files.audioFile[0].filename,
         imageFile: req.files.imageFile ? req.files.imageFile[0].filename : null,
         notesFile: req.files.notesFile ? req.files.notesFile[0].filename : null
@@ -71,7 +72,7 @@ class SermonController {
   async updateSermon(req, res) {
     try {
       const { id } = req.params
-      const { title, date, description } = req.body
+      const { title, date, description, youtubeId } = req.body
       
       if (!title || !date) {
         return res.status(400).json({ error: 'Title and date are required' })
@@ -80,7 +81,8 @@ class SermonController {
       const updateData = {
         title,
         date,
-        description
+        description,
+        youtubeId
       }
 
       // Handle file updates if provided

@@ -365,6 +365,17 @@
                 <small class="text-gray-500">Brief description limited to 3-4 sentences</small>
               </div>
               
+              <div class="field md:col-span-2">
+                <label for="youtubeId" class="block text-sm font-medium mb-2">YouTube Video ID (Optional)</label>
+                <InputText 
+                  id="youtubeId"
+                  v-model="newSermon.youtubeId" 
+                  placeholder="Enter YouTube video ID (e.g., dQw4w9WgXcQ)"
+                  class="w-full"
+                />
+                <small class="text-gray-500">Enter just the video ID from the YouTube URL, not the full URL</small>
+              </div>
+              
               <div class="field">
                 <label for="audioFile" class="block text-sm font-medium mb-2">Audio File *</label>
                 <FileUpload 
@@ -588,6 +599,17 @@
             rows="4"
             class="w-full"
           />
+        </div>
+        
+        <div class="field">
+          <label for="editYoutubeId" class="block text-sm font-medium mb-2">YouTube Video ID (Optional)</label>
+          <InputText 
+            id="editYoutubeId"
+            v-model="editingSermon.youtubeId" 
+            placeholder="Enter YouTube video ID (e.g., dQw4w9WgXcQ)"
+            class="w-full"
+          />
+          <small class="text-gray-500">Enter just the video ID from the YouTube URL, not the full URL</small>
         </div>
         
         <div class="field">
@@ -856,6 +878,7 @@ interface Sermon {
   audioFile: string
   imageFile?: string
   notesFile?: string
+  youtubeId?: string
   order: number
   createdAt: string
   images?: SermonImage[]
@@ -909,7 +932,8 @@ const showEditMusicDialog = ref(false)
 const newSermon = ref({
   title: '',
   date: null as Date | null,
-  description: ''
+  description: '',
+  youtubeId: ''
 })
 
 const editingSermon = ref({
@@ -917,6 +941,7 @@ const editingSermon = ref({
   title: '',
   date: null as Date | null,
   description: '',
+  youtubeId: '',
   images: [] as SermonImage[]
 })
 
@@ -1040,6 +1065,7 @@ const uploadSermon = async () => {
     formData.append('title', newSermon.value.title)
     formData.append('date', newSermon.value.date!.toISOString().split('T')[0])
     formData.append('description', newSermon.value.description)
+    formData.append('youtubeId', newSermon.value.youtubeId)
     formData.append('audioFile', selectedAudioFile.value!)
     
     if (selectedImageFile.value) {
@@ -1064,7 +1090,7 @@ const uploadSermon = async () => {
     })
     
     // Reset form
-    newSermon.value = { title: '', date: null, description: '' }
+    newSermon.value = { title: '', date: null, description: '', youtubeId: '' }
     selectedAudioFile.value = null
     selectedImageFile.value = null
     selectedNotesFile.value = null
@@ -1177,6 +1203,7 @@ const startEdit = (sermon: Sermon) => {
     title: sermon.title,
     date: new Date(sermon.date),
     description: sermon.description || '',
+    youtubeId: sermon.youtubeId || '',
     images: sermon.images || []
   }
   selectedEditAudioFile.value = null
@@ -1191,7 +1218,7 @@ const startEdit = (sermon: Sermon) => {
 const cancelEdit = () => {
   editing.value = null
   showEditDialog.value = false
-  editingSermon.value = { id: '', title: '', date: null, description: '', images: [] }
+  editingSermon.value = { id: '', title: '', date: null, description: '', youtubeId: '', images: [] }
   selectedEditAudioFile.value = null
   selectedEditImageFile.value = null
   selectedEditNotesFile.value = null
@@ -1241,6 +1268,7 @@ const updateSermon = async () => {
     formData.append('title', editingSermon.value.title)
     formData.append('date', editingSermon.value.date!.toISOString().split('T')[0])
     formData.append('description', editingSermon.value.description)
+    formData.append('youtubeId', editingSermon.value.youtubeId)
     
     if (selectedEditAudioFile.value) {
       formData.append('audioFile', selectedEditAudioFile.value)

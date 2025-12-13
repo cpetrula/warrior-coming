@@ -154,6 +154,23 @@
               </audio>
             </template>
           </Card>//-->
+          
+          <!-- YouTube Video Player -->
+          <Card v-if="selectedSermon.youtubeId">
+            <template #content>
+              <div class="youtube-player-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+                <iframe 
+                  :src="`https://www.youtube.com/embed/${selectedSermon.youtubeId}`"
+                  style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen
+                  :title="`${selectedSermon.title} - YouTube Video`"
+                />
+              </div>
+            </template>
+          </Card>
+          
           <!-- Image Gallery -->
           <Card v-if="galleryImages.length > 0">
           
@@ -273,6 +290,7 @@ interface Sermon {
   audioFile: string
   imageFile?: string
   notesFile?: string
+  youtubeId?: string
   order: number
   createdAt: string
   images?: SermonImage[]
