@@ -14,29 +14,23 @@
     <div v-else class="music-list" v-for="musicItem in music" :key="musicItem.id" :id="`music-${musicItem.id}`">
 
       
-      <div style="display:grid;grid-template-columns:60px 1fr;">
+      
         <i class="pi pi-headphones mb-4"></i>
         <div>
-          <div class="text-xl font-semibold text-white">{{ musicItem.title }}</div>
-          <div class="text-sm text-gray-500">
-                Added {{ formatDate(musicItem.createdAt) }}
+          <div class="text-white pb-2">{{ musicItem.title }}</div>
+          <div>
+            <audio 
+              controls 
+              class="w-full"
+              preload="metadata"
+            >
+              <source :src="`/uploads/${musicItem.musicFile}`" type="audio/mpeg">
+              <source :src="`/uploads/${musicItem.musicFile}`" type="audio/wav">
+              <source :src="`/uploads/${musicItem.musicFile}`" type="audio/ogg">
+              Your browser does not support the audio element.
+          </audio>
           </div>
-        </div>
-      </div>
-                   
-      <div>
-        <audio 
-          controls 
-          class="w-full"
-          preload="metadata"
-        >
-          <source :src="`/uploads/${musicItem.musicFile}`" type="audio/mpeg">
-          <source :src="`/uploads/${musicItem.musicFile}`" type="audio/wav">
-          <source :src="`/uploads/${musicItem.musicFile}`" type="audio/ogg">
-          Your browser does not support the audio element.
-        </audio>
-        
-        <!-- Action buttons -->
+          <!-- Action buttons -->
         <div class="action-buttons mt-3">
           <button 
             @click="downloadMusic(musicItem)"
@@ -55,7 +49,7 @@
             <span class="btn-text">Share</span>
           </button>
         </div>
-      </div>
+        </div>
 
     </div>
   </div>
@@ -192,9 +186,11 @@ onMounted(() => {
 
 .music-list {
   border-radius: 8px;
+  background-color:#222;
+  margin-bottom: 20px;
   padding: 1rem;
   display:grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 70px 1fr;
   transition: background-color 0.3s ease;
 }
 
@@ -280,15 +276,18 @@ onMounted(() => {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+  /*
   .action-btn .btn-text {
     display: none;
   }
-  
+  */
   .action-btn {
     padding: 0.625rem;
     justify-content: center;
     min-width: 44px;
+  }
+  .pi-headphones {
+    display: none;
   }
  }
 </style>
