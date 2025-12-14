@@ -62,7 +62,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
 import Card from 'primevue/card'
@@ -90,17 +90,17 @@ const loadMusic = async () => {
     
     // If there's an ID in the route, scroll to that music item
     if (route.params.id) {
-      setTimeout(() => {
-        const element = document.getElementById(`music-${route.params.id}`)
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-          // Add a highlight effect
-          element.classList.add('highlight')
-          setTimeout(() => {
-            element.classList.remove('highlight')
-          }, 2000)
-        }
-      }, 100)
+      // Use nextTick to ensure DOM is updated before scrolling
+      await nextTick()
+      const element = document.getElementById(`music-${route.params.id}`)
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        // Add a highlight effect
+        element.classList.add('highlight')
+        setTimeout(() => {
+          element.classList.remove('highlight')
+        }, 2000)
+      }
     }
   } catch (error) {
     console.error('Error loading music:', error)
@@ -123,24 +123,29 @@ const formatDate = (dateString: string) => {
 }
 
 const downloadMusic = async (musicItem: Music) => {
+  let link: HTMLAnchorElement | null = null
   try {
     // Create a temporary link to trigger download
-    const link = document.createElement('a')
+    link = document.createElement('a')
     link.href = `/api/music/${musicItem.id}/download`
     link.download = musicItem.musicFile
     document.body.appendChild(link)
     link.click()
-    document.body.removeChild(link)
   } catch (error) {
     console.error('Error downloading music:', error)
     alert('Failed to download music. Please try again.')
+  } finally {
+    // Clean up the link element
+    if (link && document.body.contains(link)) {
+      document.body.removeChild(link)
+    }
   }
 }
 
 const shareMusic = async (musicItem: Music) => {
+  const shareUrl = `${window.location.origin}/music/${musicItem.id}`
+  
   try {
-    const shareUrl = `${window.location.origin}/music/${musicItem.id}`
-    
     // Check if Web Share API is available (mainly on mobile)
     if (navigator.share) {
       await navigator.share({
@@ -157,7 +162,6 @@ const shareMusic = async (musicItem: Music) => {
     // If share is cancelled or fails, try clipboard as fallback
     if (error instanceof Error && error.name !== 'AbortError') {
       try {
-        const shareUrl = `${window.location.origin}/music/${musicItem.id}`
         await navigator.clipboard.writeText(shareUrl)
         alert('Link copied to clipboard!')
       } catch (clipboardError) {
