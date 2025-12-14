@@ -7,6 +7,9 @@ const router = express.Router()
 // Get all music items
 router.get('/', musicController.getAllMusic)
 
+// Download music file (must be before /:id to avoid route conflict)
+router.get('/:id/download', musicController.downloadMusic)
+
 // Get music item by ID
 router.get('/:id', musicController.getMusicById)
 

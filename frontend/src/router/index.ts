@@ -18,6 +18,7 @@ const routes = [
   { path: '/sermons/:id', component: Sermons, props: true, meta: { title: 'Sermons - Warrior Coming', canonical: 'https://warriorcoming.com/sermons' } },
   { path: '/blogs', component: Blogs, meta: { canonical: 'https://warriorcoming.com/blogs' } },
   { path: '/music', component: Music, meta: { title: 'Music - Warrior Coming', canonical: 'https://warriorcoming.com/music' } },
+  { path: '/music/:id', component: Music, props: true, meta: { title: 'Music - Warrior Coming', canonical: 'https://warriorcoming.com/music' } },
   { path: '/shop', component: Shop, meta: { canonical: 'https://warriorcoming.com/shop' } },
   { path: '/admin', component: Admin, meta: { canonical: 'https://warriorcoming.com/admin' } },
   { path: '/about', component: AboutUs, meta: { title: 'About Us - Warrior Coming', canonical: 'https://warriorcoming.com/about' } },
