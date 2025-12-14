@@ -1,5 +1,6 @@
 import Music from '../models/Music.js'
 import { uploadsDir } from '../config/multer.js'
+import path from 'path'
 
 class MusicController {
   /**
@@ -117,6 +118,33 @@ class MusicController {
     } catch (error) {
       console.error('Error deleting music:', error)
       res.status(500).json({ error: 'Failed to delete music' })
+    }
+  }
+
+  /**
+   * Download music file
+   */
+  async downloadMusic(req, res) {
+    try {
+      const music = await Music.getById(req.params.id)
+      if (!music) {
+        return res.status(404).json({ error: 'Music not found' })
+      }
+
+      const filePath = path.join(uploadsDir, music.musicFile)
+      
+      // Set content disposition header to force download
+      res.download(filePath, music.musicFile, (err) => {
+        if (err) {
+          console.error('Error downloading file:', err)
+          if (!res.headersSent) {
+            res.status(500).json({ error: 'Failed to download file' })
+          }
+        }
+      })
+    } catch (error) {
+      console.error('Error downloading music:', error)
+      res.status(500).json({ error: 'Failed to download music' })
     }
   }
 }

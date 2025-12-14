@@ -32,12 +32,12 @@ class Music {
   }
 
   /**
-   * Get all music items sorted by order, then by date (newest first)
+   * Get all music items sorted by date (newest first)
    */
   async getAll() {
     try {
       const [rows] = await pool.execute(
-        'SELECT id, title, music_file as musicFile, music_order as `order`, created_at as createdAt FROM music ORDER BY music_order ASC, created_at DESC'
+        'SELECT id, title, music_file as musicFile, music_order as `order`, created_at as createdAt FROM music ORDER BY created_at DESC'
       )
       
       return rows.map(row => ({

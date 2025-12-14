@@ -10,6 +10,9 @@ router.get('/', musicController.getAllMusic)
 // Get music item by ID
 router.get('/:id', musicController.getMusicById)
 
+// Download music file
+router.get('/:id/download', musicController.downloadMusic)
+
 // Create new music item (with file upload)
 router.post('/', upload.fields([
   { name: 'musicFile', maxCount: 1 }
