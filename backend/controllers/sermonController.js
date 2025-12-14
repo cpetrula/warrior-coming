@@ -2,6 +2,20 @@ import Sermon from '../models/Sermon.js'
 import { uploadsDir } from '../config/multer.js'
 
 class SermonController {
+  constructor() {
+    // Bind methods to preserve 'this' context when used as route handlers
+    this.getAllSermons = this.getAllSermons.bind(this)
+    this.getSermonById = this.getSermonById.bind(this)
+    this.createSermon = this.createSermon.bind(this)
+    this.updateSermon = this.updateSermon.bind(this)
+    this.reorderSermons = this.reorderSermons.bind(this)
+    this.deleteSermonImage = this.deleteSermonImage.bind(this)
+    this.deleteSermon = this.deleteSermon.bind(this)
+    this.addSermonImages = this.addSermonImages.bind(this)
+    this.getSermonImages = this.getSermonImages.bind(this)
+    this.deleteSpecificSermonImage = this.deleteSpecificSermonImage.bind(this)
+  }
+
   /**
    * Validate YouTube ID format
    * YouTube IDs are 11 characters long and contain only alphanumeric, hyphens, and underscores
