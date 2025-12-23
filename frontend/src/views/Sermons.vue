@@ -72,7 +72,7 @@
                              
                 <div class="grid grid-cols-2 auto-cols-max">
                   <h2 class="text-xl font-bold text-gray-200">{{ selectedSermon.title }}</h2>
-                  <p class="text-gray-400 text-right">{{ formatDate(selectedSermon.date) }}</p>
+                  <!-- <p class="text-gray-400 text-right">{{ formatDate(selectedSermon.date) }}</p> -->
                 </div>
              
             </template>
@@ -128,12 +128,12 @@
                 </div>
               </div>
               
-              <audio controls ref="audioPlayer" class="w-full">
+              <!-- <audio controls ref="audioPlayer" class="w-full">
                 <source :src="`/uploads/${selectedSermon.audioFile}`" type="audio/mpeg">
                 <source :src="`/uploads/${selectedSermon.audioFile}`" type="audio/wav">
                 <source :src="`/uploads/${selectedSermon.audioFile}`" type="audio/ogg">
                 Your browser does not support the audio element.
-              </audio>
+              </audio> -->
             </template>
           </Card>
           
@@ -171,7 +171,7 @@
           </Card>
           
           <!-- Image Gallery -->
-          <Card v-if="galleryImages.length > 0">
+          <!-- <Card v-if="galleryImages.length > 0">
           
             <template #content>
               <Galleria 
@@ -222,9 +222,9 @@
                 </template>
               </Galleria>
             </template>
-          </Card>
+          </Card> -->
           <!-- PDF Notes Viewer -->
-          <Card v-if="selectedSermon.notesFile">
+          <!-- <Card v-if="selectedSermon.notesFile">
             <template #title>
               <span class="text-lg font-semibold flex items-center">
                 <i class="pi pi-file-pdf mr-2"></i>
@@ -250,14 +250,14 @@
                 />
               </div>
             </template>
-          </Card>
+          </Card> -->
           
           <!-- Notes Text -->
           <Card v-if="selectedSermon.notes">
             <template #title>
               <span class="text-lg font-semibold flex items-center">
                 <i class="pi pi-file-edit mr-2"></i>
-                Notes
+                Sermon Notes
               </span>
             </template>
             <template #content>

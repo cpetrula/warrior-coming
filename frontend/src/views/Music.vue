@@ -31,7 +31,7 @@
 
     <!-- Fixed Audio Player at Bottom -->
     <div v-if="currentSong" class="fixed-audio-player">
-      <div class="player-content">
+      <div class="player-content"> 
         <div class="player-info">
           <i class="pi pi-music player-icon"></i>
           <div class="current-song-details">

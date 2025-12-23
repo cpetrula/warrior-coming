@@ -640,7 +640,7 @@
           <small class="text-gray-500">Additional free form text for sermon notes</small>
         </div>
         
-        <div class="field">
+        <!-- <div class="field">
           <label for="editAudioFile" class="block text-sm font-medium mb-2">Audio File (Optional - leave empty to keep current)</label>
           <FileUpload 
             id="editAudioFile"
@@ -651,13 +651,13 @@
             @select="onEditAudioSelect"
             chooseLabel="Choose New Audio File"
           />
-        </div>
+        </div> -->
         
-        <div class="field">
-          <label for="editImageFile" class="block text-sm font-medium mb-2">Image (Optional - leave empty to keep current)</label>
+        <!-- <div class="field">
+          <label for="editImageFile" class="block text-sm font-medium mb-2">Image (Optional - leave empty to keep current)</label> -->
           
           <!-- Show current image if exists -->
-          <div v-if="currentSermonImage && !imageDeleted" class="mb-3 p-3 border rounded">
+          <!-- <div v-if="currentSermonImage && !imageDeleted" class="mb-3 p-3 border rounded">
             <div class="flex items-center justify-between">
               <span class="text-sm text-gray-600">Current image: <img :src="`/uploads/${currentSermonImage}`" style="width:150px"/></span>
               <Button 
@@ -669,10 +669,10 @@
                 outlined
               />
             </div>
-          </div>
+          </div> -->
           
           <!-- Show message if image was deleted -->
-          <div v-if="imageDeleted" class="mb-3 p-3 border rounded bg-yellow-50">
+          <!-- <div v-if="imageDeleted" class="mb-3 p-3 border rounded bg-yellow-50">
             <span class="text-sm text-yellow-700">Image will be removed when you save</span>
           </div>
           
@@ -685,10 +685,10 @@
             @select="onEditImageSelect"
             chooseLabel="Choose New Image"
           />
-        </div>
+        </div> -->
 
         <!-- Display existing multiple images -->
-        <div v-if="editingSermon.images && editingSermon.images.length > 0" class="field">
+        <!-- <div v-if="editingSermon.images && editingSermon.images.length > 0" class="field">
           <label class="block text-sm font-medium mb-2">Current Additional Images</label>
           <div class="grid grid-cols-3 gap-4">
             <div v-for="image in editingSermon.images" :key="image.id" class="relative border rounded p-2">
@@ -704,9 +704,9 @@
               />
             </div>
           </div>
-        </div>
+        </div> -->
 
-        <div class="field">
+        <!-- <div class="field">
           <label for="editImageFiles" class="block text-sm font-medium mb-2">Add More Images (Optional - up to 10 total)</label>
           <FileUpload 
             id="editImageFiles"
@@ -721,9 +721,9 @@
           <small v-if="selectedEditImageFiles.length > 0" class="text-green-600">
             {{ selectedEditImageFiles.length }} new image(s) selected
           </small>
-        </div>
+        </div> -->
 
-        <div class="field">
+        <!-- <div class="field">
           <label for="editNotesFile" class="block text-sm font-medium mb-2">Sermon Notes PDF (Optional - leave empty to keep current)</label>
           <FileUpload 
             id="editNotesFile"
@@ -734,7 +734,7 @@
             @select="onEditNotesSelect"
             chooseLabel="Choose New PDF Notes"
           />
-        </div>
+        </div> -->
       </form>
       
       <template #footer>
@@ -1048,8 +1048,7 @@ const editErrors = ref({
 // Computed properties
 const isFormValid = computed(() => {
   return newSermon.value.title.trim() !== '' && 
-         newSermon.value.date !== null && 
-         selectedAudioFile.value !== null
+         newSermon.value.date !== null 
 })
 
 // Methods
@@ -1073,9 +1072,9 @@ const validateForm = () => {
     errors.value.date = 'Date is required'
   }
   
-  if (!selectedAudioFile.value) {
-    errors.value.audioFile = 'Audio file is required'
-  }
+  // if (!selectedAudioFile.value) {
+  //   errors.value.audioFile = 'Audio file is required'
+  // }
   
   if (newSermon.value.youtubeId && !validateYoutubeId(newSermon.value.youtubeId)) {
     errors.value.youtubeId = 'Invalid YouTube ID. Must be 11 characters (letters, numbers, hyphens, underscores)'
@@ -1113,22 +1112,22 @@ const uploadSermon = async () => {
     formData.append('description', newSermon.value.description)
     formData.append('youtubeId', newSermon.value.youtubeId)
     formData.append('notes', newSermon.value.notes)
-    formData.append('audioFile', selectedAudioFile.value!)
+    //formData.append('audioFile', selectedAudioFile.value!)
     
-    if (selectedImageFile.value) {
-      formData.append('imageFile', selectedImageFile.value)
-    }
+    // if (selectedImageFile.value) {
+    //   formData.append('imageFile', selectedImageFile.value)
+    // }
     
-    if (selectedNotesFile.value) {
-      formData.append('notesFile', selectedNotesFile.value)
-    }
+    // if (selectedNotesFile.value) {
+    //   formData.append('notesFile', selectedNotesFile.value)
+    // }
     
     // Append multiple images
-    if (selectedImageFiles.value.length > 0) {
-      selectedImageFiles.value.forEach((file) => {
-        formData.append('imageFiles', file)
-      })
-    }
+    // if (selectedImageFiles.value.length > 0) {
+    //   selectedImageFiles.value.forEach((file) => {
+    //     formData.append('imageFiles', file)
+    //   })
+    // }
     
     await axios.post('/api/sermons', formData, {
       headers: {
@@ -1138,20 +1137,20 @@ const uploadSermon = async () => {
     
     // Reset form
     newSermon.value = { title: '', date: null, description: '', youtubeId: '', notes: '' }
-    selectedAudioFile.value = null
-    selectedImageFile.value = null
-    selectedNotesFile.value = null
-    selectedImageFiles.value = []
+    // selectedAudioFile.value = null 
+    // selectedImageFile.value = null
+    // selectedNotesFile.value = null
+    // selectedImageFiles.value = []
     
     // Clear file uploads
-    const audioUpload = document.querySelector('#audioFile input') as HTMLInputElement
-    const imageUpload = document.querySelector('#imageFile input') as HTMLInputElement
-    const imageFilesUpload = document.querySelector('#imageFiles input') as HTMLInputElement
-    const notesUpload = document.querySelector('#notesFile input') as HTMLInputElement
-    if (audioUpload) audioUpload.value = ''
-    if (imageUpload) imageUpload.value = ''
-    if (imageFilesUpload) imageFilesUpload.value = ''
-    if (notesUpload) notesUpload.value = ''
+    // const audioUpload = document.querySelector('#audioFile input') as HTMLInputElement
+    // const imageUpload = document.querySelector('#imageFile input') as HTMLInputElement
+    // const imageFilesUpload = document.querySelector('#imageFiles input') as HTMLInputElement
+    // const notesUpload = document.querySelector('#notesFile input') as HTMLInputElement
+    // if (audioUpload) audioUpload.value = ''
+    // if (imageUpload) imageUpload.value = ''
+    // if (imageFilesUpload) imageFilesUpload.value = ''
+    // if (notesUpload) notesUpload.value = ''
     
     await loadSermons()
   } catch (error) {
