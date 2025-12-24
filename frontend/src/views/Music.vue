@@ -86,11 +86,14 @@ import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import Card from 'primevue/card'
 import ProgressSpinner from 'primevue/progressspinner'
+import { updatePageMetadata } from '../utils/seo'
 
 interface Music {
   id: string
   title: string
   musicFile: string
+  seoTitle?: string
+  seoDescription?: string
   order: number
   createdAt: string
 }
@@ -136,6 +139,9 @@ const playSong = (musicItem: Music) => {
   // Update URL without reloading the page
   router.push(`/music/${musicItem.id}`)
   
+  // Update page metadata
+  updateMusicMetadata(musicItem)
+  
   // Wait for next tick to ensure audio element is rendered
   nextTick(() => {
     if (audioPlayer.value) {
@@ -145,6 +151,12 @@ const playSong = (musicItem: Music) => {
       })
     }
   })
+}
+
+const updateMusicMetadata = (musicItem: Music) => {
+  const pageTitle = musicItem.seoTitle || musicItem.title || 'Music'
+  const metaDescription = musicItem.seoDescription || `Listen to ${musicItem.title} from Warrior Coming`
+  updatePageMetadata(pageTitle, metaDescription)
 }
 
 const onSongEnded = () => {
