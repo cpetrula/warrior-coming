@@ -286,6 +286,7 @@ import Button from 'primevue/button'
 import Image from 'primevue/image'
 import ProgressSpinner from 'primevue/progressspinner'
 import Galleria from 'primevue/galleria'
+import { updatePageMetadata } from '../utils/seo'
 
 interface SermonImage {
   id: string
@@ -394,7 +395,7 @@ const loadSermons = async () => {
       const foundSermon = sermons.value.find(sermon => sermon.id === sermonId)
       if (foundSermon) {
         selectedSermon.value = foundSermon
-        updatePageMetadata(foundSermon)
+        updateSermonMetadata(foundSermon)
       } else {
         // If sermon not found, redirect to sermons list
         router.push('/sermons')
@@ -403,7 +404,7 @@ const loadSermons = async () => {
       // Auto-select the first sermon if no ID in URL and no sermon selected
       if (sermons.value.length > 0 && !selectedSermon.value) {
         selectedSermon.value = sermons.value[0]
-        updatePageMetadata(sermons.value[0])
+        updateSermonMetadata(sermons.value[0])
       }
     }
   } catch (error) {
@@ -427,25 +428,13 @@ const selectSermon = (sermon: Sermon) => {
     audioPlayer.value.play(); 
   }
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  updatePageMetadata(sermon)
+  updateSermonMetadata(sermon)
 }
 
-const updatePageMetadata = (sermon: Sermon) => {
-  // Update document title
+const updateSermonMetadata = (sermon: Sermon) => {
   const pageTitle = sermon.seoTitle || sermon.title || 'Sermon'
-  document.title = `${pageTitle} - Warrior Coming`
-  
-  // Update meta description
   const metaDescription = sermon.seoDescription || sermon.description || ''
-  let metaTag = document.querySelector('meta[name="description"]')
-  
-  if (!metaTag) {
-    metaTag = document.createElement('meta')
-    metaTag.setAttribute('name', 'description')
-    document.head.appendChild(metaTag)
-  }
-  
-  metaTag.setAttribute('content', metaDescription)
+  updatePageMetadata(pageTitle, metaDescription)
 }
 
 const formatDate = (dateString: string) => {
@@ -547,12 +536,12 @@ watch(() => route.params.id, (newId) => {
     const foundSermon = sermons.value.find(sermon => sermon.id === newId)
     if (foundSermon) {
       selectedSermon.value = foundSermon
-      updatePageMetadata(foundSermon)
+      updateSermonMetadata(foundSermon)
     }
   } else if (!newId && sermons.value.length > 0) {
     // If navigated back to /sermons without ID, select first sermon
     selectedSermon.value = sermons.value[0]
-    updatePageMetadata(sermons.value[0])
+    updateSermonMetadata(sermons.value[0])
   }
 })
 </script>

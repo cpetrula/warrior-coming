@@ -86,6 +86,7 @@ import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import Card from 'primevue/card'
 import ProgressSpinner from 'primevue/progressspinner'
+import { updatePageMetadata } from '../utils/seo'
 
 interface Music {
   id: string
@@ -139,7 +140,7 @@ const playSong = (musicItem: Music) => {
   router.push(`/music/${musicItem.id}`)
   
   // Update page metadata
-  updatePageMetadata(musicItem)
+  updateMusicMetadata(musicItem)
   
   // Wait for next tick to ensure audio element is rendered
   nextTick(() => {
@@ -152,22 +153,10 @@ const playSong = (musicItem: Music) => {
   })
 }
 
-const updatePageMetadata = (musicItem: Music) => {
-  // Update document title
+const updateMusicMetadata = (musicItem: Music) => {
   const pageTitle = musicItem.seoTitle || musicItem.title || 'Music'
-  document.title = `${pageTitle} - Warrior Coming`
-  
-  // Update meta description
   const metaDescription = musicItem.seoDescription || `Listen to ${musicItem.title} from Warrior Coming`
-  let metaTag = document.querySelector('meta[name="description"]')
-  
-  if (!metaTag) {
-    metaTag = document.createElement('meta')
-    metaTag.setAttribute('name', 'description')
-    document.head.appendChild(metaTag)
-  }
-  
-  metaTag.setAttribute('content', metaDescription)
+  updatePageMetadata(pageTitle, metaDescription)
 }
 
 const onSongEnded = () => {
