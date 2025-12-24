@@ -31,7 +31,7 @@
         <a href="https://warrior-coming.myspreadshop.com/all" @click="showMenu=false" target="_shop">Shop</a>
         <router-link to="/about" @click="showMenu=false">About Us</router-link>
         <router-link to="/contact" @click="showMenu=false">Contact Us</router-link>
-        <router-link to="/admin"  @click="showMenu=false">Admin</router-link>
+        <!-- <router-link to="/admin"  @click="showMenu=false">Admin</router-link> -->
       </div>
       
     </Drawer>
