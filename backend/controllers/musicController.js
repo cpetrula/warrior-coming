@@ -35,7 +35,7 @@ class MusicController {
    */
   async createMusic(req, res) {
     try {
-      const { title } = req.body
+      const { title, seoTitle, seoDescription } = req.body
       
       if (!title) {
         return res.status(400).json({ error: 'Title is required' })
@@ -47,7 +47,9 @@ class MusicController {
 
       const musicData = {
         title,
-        musicFile: req.files.musicFile[0].filename
+        musicFile: req.files.musicFile[0].filename,
+        seoTitle,
+        seoDescription
       }
 
       const newMusic = await Music.create(musicData)
@@ -63,13 +65,13 @@ class MusicController {
    */
   async updateMusic(req, res) {
     try {
-      const { title } = req.body
+      const { title, seoTitle, seoDescription } = req.body
       
       if (!title) {
         return res.status(400).json({ error: 'Title is required' })
       }
 
-      const updateData = { title }
+      const updateData = { title, seoTitle, seoDescription }
 
       // Add new music file if provided
       if (req.files && req.files.musicFile) {

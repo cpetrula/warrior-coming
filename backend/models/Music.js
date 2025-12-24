@@ -37,7 +37,7 @@ class Music {
   async getAll() {
     try {
       const [rows] = await pool.execute(
-        'SELECT id, title, music_file as musicFile, music_order as `order`, created_at as createdAt FROM music ORDER BY created_at DESC'
+        'SELECT id, title, music_file as musicFile, music_order as `order`, seo_title as seoTitle, seo_description as seoDescription, created_at as createdAt FROM music ORDER BY created_at DESC'
       )
       
       return rows.map(row => ({
@@ -56,7 +56,7 @@ class Music {
   async getById(id) {
     try {
       const [rows] = await pool.execute(
-        'SELECT id, title, music_file as musicFile, music_order as `order`, created_at as createdAt FROM music WHERE id = ?',
+        'SELECT id, title, music_file as musicFile, music_order as `order`, seo_title as seoTitle, seo_description as seoDescription, created_at as createdAt FROM music WHERE id = ?',
         [id]
       )
       
@@ -79,15 +79,15 @@ class Music {
    */
   async create(musicData) {
     try {
-      const { title, musicFile } = musicData
+      const { title, musicFile, seoTitle, seoDescription } = musicData
       
       // Get the highest order number and add 1
       const [orderRows] = await pool.execute('SELECT COALESCE(MAX(music_order), 0) + 1 as nextOrder FROM music')
       const nextOrder = orderRows[0].nextOrder
       
       const [result] = await pool.execute(
-        'INSERT INTO music (title, music_file, music_order) VALUES (?, ?, ?)',
-        [title, musicFile, nextOrder]
+        'INSERT INTO music (title, music_file, seo_title, seo_description, music_order) VALUES (?, ?, ?, ?, ?)',
+        [title, musicFile, seoTitle || null, seoDescription || null, nextOrder]
       )
       
       return await this.getById(result.insertId)
@@ -127,6 +127,14 @@ class Music {
       if (updateData.musicFile !== undefined) {
         updates.push('music_file = ?')
         values.push(updateData.musicFile)
+      }
+      if (updateData.seoTitle !== undefined) {
+        updates.push('seo_title = ?')
+        values.push(updateData.seoTitle)
+      }
+      if (updateData.seoDescription !== undefined) {
+        updates.push('seo_description = ?')
+        values.push(updateData.seoDescription)
       }
 
       if (updates.length > 0) {
