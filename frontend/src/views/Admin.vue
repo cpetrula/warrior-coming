@@ -233,6 +233,29 @@
                   <small v-if="musicErrors.musicFile" class="p-error">{{ musicErrors.musicFile }}</small>
                 </div>
                 
+                <div class="field">
+                  <label for="musicSeoTitle" class="block text-sm font-medium mb-2">SEO Title (Optional)</label>
+                  <InputText 
+                    id="musicSeoTitle"
+                    v-model="newMusic.seoTitle" 
+                    placeholder="Enter SEO-optimized title for search engines"
+                    class="w-full"
+                  />
+                  <small class="text-gray-500">Custom title for search engine results. If left empty, the music title will be used.</small>
+                </div>
+                
+                <div class="field">
+                  <label for="musicSeoDescription" class="block text-sm font-medium mb-2">SEO Meta Description (Optional)</label>
+                  <Textarea 
+                    id="musicSeoDescription"
+                    v-model="newMusic.seoDescription" 
+                    placeholder="Enter meta description for search engines (150-160 characters recommended)"
+                    rows="3"
+                    class="w-full"
+                  />
+                  <small class="text-gray-500">Brief description for search engine results. Recommended length: 150-160 characters.</small>
+                </div>
+                
                 <div class="flex gap-2">
                   <Button 
                     type="submit" 
@@ -388,6 +411,29 @@
                   class="w-full"
                 />
                 <small class="text-gray-500">Additional free form text for sermon notes</small>
+              </div>
+              
+              <div class="field md:col-span-2">
+                <label for="seoTitle" class="block text-sm font-medium mb-2">SEO Title (Optional)</label>
+                <InputText 
+                  id="seoTitle"
+                  v-model="newSermon.seoTitle" 
+                  placeholder="Enter SEO-optimized title for search engines"
+                  class="w-full"
+                />
+                <small class="text-gray-500">Custom title for search engine results. If left empty, the sermon title will be used.</small>
+              </div>
+              
+              <div class="field md:col-span-2">
+                <label for="seoDescription" class="block text-sm font-medium mb-2">SEO Meta Description (Optional)</label>
+                <Textarea 
+                  id="seoDescription"
+                  v-model="newSermon.seoDescription" 
+                  placeholder="Enter meta description for search engines (150-160 characters recommended)"
+                  rows="3"
+                  class="w-full"
+                />
+                <small class="text-gray-500">Brief description for search engine results. Recommended length: 150-160 characters.</small>
               </div>
               
               <div class="field">
@@ -640,6 +686,29 @@
           <small class="text-gray-500">Additional free form text for sermon notes</small>
         </div>
         
+        <div class="field">
+          <label for="editSeoTitle" class="block text-sm font-medium mb-2">SEO Title (Optional)</label>
+          <InputText 
+            id="editSeoTitle"
+            v-model="editingSermon.seoTitle" 
+            placeholder="Enter SEO-optimized title for search engines"
+            class="w-full"
+          />
+          <small class="text-gray-500">Custom title for search engine results. If left empty, the sermon title will be used.</small>
+        </div>
+        
+        <div class="field">
+          <label for="editSeoDescription" class="block text-sm font-medium mb-2">SEO Meta Description (Optional)</label>
+          <Textarea 
+            id="editSeoDescription"
+            v-model="editingSermon.seoDescription" 
+            placeholder="Enter meta description for search engines (150-160 characters recommended)"
+            rows="3"
+            class="w-full"
+          />
+          <small class="text-gray-500">Brief description for search engine results. Recommended length: 150-160 characters.</small>
+        </div>
+        
         <!-- <div class="field">
           <label for="editAudioFile" class="block text-sm font-medium mb-2">Audio File (Optional - leave empty to keep current)</label>
           <FileUpload 
@@ -852,6 +921,29 @@
             chooseLabel="Choose New Music File"
           />
         </div>
+        
+        <div class="field">
+          <label for="editMusicSeoTitle" class="block text-sm font-medium mb-2">SEO Title (Optional)</label>
+          <InputText 
+            id="editMusicSeoTitle"
+            v-model="editingMusic.seoTitle" 
+            placeholder="Enter SEO-optimized title for search engines"
+            class="w-full"
+          />
+          <small class="text-gray-500">Custom title for search engine results. If left empty, the music title will be used.</small>
+        </div>
+        
+        <div class="field">
+          <label for="editMusicSeoDescription" class="block text-sm font-medium mb-2">SEO Meta Description (Optional)</label>
+          <Textarea 
+            id="editMusicSeoDescription"
+            v-model="editingMusic.seoDescription" 
+            placeholder="Enter meta description for search engines (150-160 characters recommended)"
+            rows="3"
+            class="w-full"
+          />
+          <small class="text-gray-500">Brief description for search engine results. Recommended length: 150-160 characters.</small>
+        </div>
       </form>
       
       <template #footer>
@@ -908,6 +1000,8 @@ interface Sermon {
   notesFile?: string
   youtubeId?: string
   notes?: string
+  seoTitle?: string
+  seoDescription?: string
   order: number
   createdAt: string
   images?: SermonImage[]
@@ -933,6 +1027,8 @@ interface Music {
   id: string
   title: string
   musicFile: string
+  seoTitle?: string
+  seoDescription?: string
   order: number
   createdAt: string
 }
@@ -963,7 +1059,9 @@ const newSermon = ref({
   date: null as Date | null,
   description: '',
   youtubeId: '',
-  notes: ''
+  notes: '',
+  seoTitle: '',
+  seoDescription: ''
 })
 
 const editingSermon = ref({
@@ -973,6 +1071,8 @@ const editingSermon = ref({
   description: '',
   youtubeId: '',
   notes: '',
+  seoTitle: '',
+  seoDescription: '',
   images: [] as SermonImage[]
 })
 
@@ -990,12 +1090,16 @@ const editingBlog = ref({
 })
 
 const newMusic = ref({
-  title: ''
+  title: '',
+  seoTitle: '',
+  seoDescription: ''
 })
 
 const editingMusic = ref({
   id: '',
-  title: ''
+  title: '',
+  seoTitle: '',
+  seoDescription: ''
 })
 
 const selectedAudioFile = ref<File | null>(null)
@@ -1112,6 +1216,8 @@ const uploadSermon = async () => {
     formData.append('description', newSermon.value.description)
     formData.append('youtubeId', newSermon.value.youtubeId)
     formData.append('notes', newSermon.value.notes)
+    formData.append('seoTitle', newSermon.value.seoTitle)
+    formData.append('seoDescription', newSermon.value.seoDescription)
     //formData.append('audioFile', selectedAudioFile.value!)
     
     // if (selectedImageFile.value) {
@@ -1136,7 +1242,7 @@ const uploadSermon = async () => {
     })
     
     // Reset form
-    newSermon.value = { title: '', date: null, description: '', youtubeId: '', notes: '' }
+    newSermon.value = { title: '', date: null, description: '', youtubeId: '', notes: '', seoTitle: '', seoDescription: '' }
     // selectedAudioFile.value = null 
     // selectedImageFile.value = null
     // selectedNotesFile.value = null
@@ -1251,6 +1357,8 @@ const startEdit = (sermon: Sermon) => {
     description: sermon.description || '',
     youtubeId: sermon.youtubeId || '',
     notes: sermon.notes || '',
+    seoTitle: sermon.seoTitle || '',
+    seoDescription: sermon.seoDescription || '',
     images: sermon.images || []
   }
   selectedEditAudioFile.value = null
@@ -1265,7 +1373,7 @@ const startEdit = (sermon: Sermon) => {
 const cancelEdit = () => {
   editing.value = null
   showEditDialog.value = false
-  editingSermon.value = { id: '', title: '', date: null, description: '', youtubeId: '', notes: '', images: [] }
+  editingSermon.value = { id: '', title: '', date: null, description: '', youtubeId: '', notes: '', seoTitle: '', seoDescription: '', images: [] }
   selectedEditAudioFile.value = null
   selectedEditImageFile.value = null
   selectedEditNotesFile.value = null
@@ -1321,6 +1429,8 @@ const updateSermon = async () => {
     formData.append('description', editingSermon.value.description)
     formData.append('youtubeId', editingSermon.value.youtubeId)
     formData.append('notes', editingSermon.value.notes)
+    formData.append('seoTitle', editingSermon.value.seoTitle)
+    formData.append('seoDescription', editingSermon.value.seoDescription)
     
     if (selectedEditAudioFile.value) {
       formData.append('audioFile', selectedEditAudioFile.value)
@@ -1546,6 +1656,8 @@ const createMusic = async () => {
     const formData = new FormData()
     formData.append('title', newMusic.value.title.trim())
     formData.append('musicFile', selectedMusicFile.value!)
+    formData.append('seoTitle', newMusic.value.seoTitle)
+    formData.append('seoDescription', newMusic.value.seoDescription)
     
     await axios.post('/api/music', formData, {
       headers: {
@@ -1554,7 +1666,7 @@ const createMusic = async () => {
     })
     
     // Reset form
-    newMusic.value = { title: '' }
+    newMusic.value = { title: '', seoTitle: '', seoDescription: '' }
     selectedMusicFile.value = null
     showMusicForm.value = false
     
@@ -1570,7 +1682,9 @@ const createMusic = async () => {
 const editMusic = (music: Music) => {
   editingMusic.value = {
     id: music.id,
-    title: music.title
+    title: music.title,
+    seoTitle: music.seoTitle || '',
+    seoDescription: music.seoDescription || ''
   }
   selectedEditMusicFile.value = null
   editMusicErrors.value = { title: '' }
@@ -1596,6 +1710,8 @@ const updateMusic = async () => {
     
     const formData = new FormData()
     formData.append('title', editingMusic.value.title.trim())
+    formData.append('seoTitle', editingMusic.value.seoTitle)
+    formData.append('seoDescription', editingMusic.value.seoDescription)
     
     if (selectedEditMusicFile.value) {
       formData.append('musicFile', selectedEditMusicFile.value)

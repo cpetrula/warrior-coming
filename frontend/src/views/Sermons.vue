@@ -304,6 +304,8 @@ interface Sermon {
   notesFile?: string
   youtubeId?: string
   notes?: string
+  seoTitle?: string
+  seoDescription?: string
   order: number
   createdAt: string
   images?: SermonImage[]
@@ -392,6 +394,7 @@ const loadSermons = async () => {
       const foundSermon = sermons.value.find(sermon => sermon.id === sermonId)
       if (foundSermon) {
         selectedSermon.value = foundSermon
+        updatePageMetadata(foundSermon)
       } else {
         // If sermon not found, redirect to sermons list
         router.push('/sermons')
@@ -400,6 +403,7 @@ const loadSermons = async () => {
       // Auto-select the first sermon if no ID in URL and no sermon selected
       if (sermons.value.length > 0 && !selectedSermon.value) {
         selectedSermon.value = sermons.value[0]
+        updatePageMetadata(sermons.value[0])
       }
     }
   } catch (error) {
@@ -423,6 +427,25 @@ const selectSermon = (sermon: Sermon) => {
     audioPlayer.value.play(); 
   }
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  updatePageMetadata(sermon)
+}
+
+const updatePageMetadata = (sermon: Sermon) => {
+  // Update document title
+  const pageTitle = sermon.seoTitle || sermon.title || 'Sermon'
+  document.title = `${pageTitle} - Warrior Coming`
+  
+  // Update meta description
+  const metaDescription = sermon.seoDescription || sermon.description || ''
+  let metaTag = document.querySelector('meta[name="description"]')
+  
+  if (!metaTag) {
+    metaTag = document.createElement('meta')
+    metaTag.setAttribute('name', 'description')
+    document.head.appendChild(metaTag)
+  }
+  
+  metaTag.setAttribute('content', metaDescription)
 }
 
 const formatDate = (dateString: string) => {
@@ -524,10 +547,12 @@ watch(() => route.params.id, (newId) => {
     const foundSermon = sermons.value.find(sermon => sermon.id === newId)
     if (foundSermon) {
       selectedSermon.value = foundSermon
+      updatePageMetadata(foundSermon)
     }
   } else if (!newId && sermons.value.length > 0) {
     // If navigated back to /sermons without ID, select first sermon
     selectedSermon.value = sermons.value[0]
+    updatePageMetadata(sermons.value[0])
   }
 })
 </script>
