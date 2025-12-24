@@ -20,7 +20,7 @@ const routes = [
   { path: '/music', component: Music, meta: { title: 'Music - Warrior Coming', canonical: 'https://warriorcoming.com/music' } },
   { path: '/music/:id', component: Music, props: true, meta: { title: 'Music - Warrior Coming', canonical: 'https://warriorcoming.com/music' } },
   { path: '/shop', component: Shop, meta: { canonical: 'https://warriorcoming.com/shop' } },
-  { path: '/admin', component: Admin, meta: { canonical: 'https://warriorcoming.com/admin' } },
+  { path: '/admin', component: Admin, meta: { noindex: true, canonical: 'https://warriorcoming.com/admin' } },
   { path: '/about', component: AboutUs, meta: { title: 'About Us - Warrior Coming', canonical: 'https://warriorcoming.com/about' } },
   { path: '/contact', component: ContactUs, meta: { title: 'Contact Us - Warrior Coming', canonical: 'https://warriorcoming.com/contact' } },
   { path: '/thank-you', component: ThankYou, meta: { title: 'Thank You - Warrior Coming', canonical: 'https://warriorcoming.com/thank-you' } },

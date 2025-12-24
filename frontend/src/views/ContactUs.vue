@@ -95,10 +95,10 @@
       <section class="contact-section">
         <h2>Email</h2>
         <p>
-          For general inquiries: <a href="mailto:info@warriorcoming.com">info@warriorcoming.com</a>
+          For general inquiries: <a href="mailto:jp@warriorcoming.com">jp@warriorcoming.com</a>
         </p>
         <p>
-          For prayer requests: <a href="mailto:prayer@warriorcoming.com">prayer@warriorcoming.com</a>
+          For prayer requests: <a href="mailto:jp@warriorcoming.com">jp@warriorcoming.com</a>
         </p>
       </section>
 
