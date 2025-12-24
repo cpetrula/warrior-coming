@@ -49,8 +49,10 @@ async function runMigrations() {
           } catch (err) {
             if (err.code === 'ER_DUP_FIELDNAME') {
               console.log('  - Column already exists (skipped)')
+            } else if (err.code === 'ER_TABLE_EXISTS_ERROR') {
+              console.log('  - Table already exists (skipped)')
             } else {
-              console.log('  - Skipped:', err.message)
+              console.log('  ⚠ Warning:', err.message)
             }
           }
         }

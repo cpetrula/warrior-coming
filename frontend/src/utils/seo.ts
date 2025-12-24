@@ -20,7 +20,7 @@ export function updatePageMetadata(title: string, description?: string) {
   if (description && description.trim()) {
     metaTag.setAttribute('content', description.trim())
   } else {
-    // Remove the meta tag if no description is provided
-    metaTag.remove()
+    // Set empty content instead of removing tag
+    metaTag.setAttribute('content', '')
   }
 }
