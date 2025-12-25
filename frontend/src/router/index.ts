@@ -45,7 +45,7 @@ router.beforeEach((to, from, next) => {
       }
 
     // Update the canonical tag
-    const canonicalUrl = to.meta.canonical || `https://warriorcoming.com${to.path}`;
+    const canonicalUrl = `https://warriorcoming.com${to.fullPath}`;
     let linkTag = document.querySelector("link[rel='canonical']");
 
     if (!linkTag) {
