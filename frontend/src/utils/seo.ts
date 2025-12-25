@@ -5,7 +5,7 @@
  */
 export function updatePageMetadata(title: string, description?: string) {
   // Update document title
-  document.title = title ? `${title} - Warrior Coming` : 'Warrior Coming'
+  document.title = title ? `${title} : 'Warrior Coming'
   
   // Update meta description
   let metaTag = document.querySelector('meta[name="description"]')
