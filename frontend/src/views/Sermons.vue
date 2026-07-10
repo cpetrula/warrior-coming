@@ -127,13 +127,6 @@
                   />
                 </div>
               </div>
-              
-              <audio controls ref="audioPlayer" class="w-full">
-                <source :src="`/uploads/${selectedSermon.audioFile}`" type="audio/mpeg">
-                <source :src="`/uploads/${selectedSermon.audioFile}`" type="audio/wav">
-                <source :src="`/uploads/${selectedSermon.audioFile}`" type="audio/ogg">
-                Your browser does not support the audio element.
-              </audio>
             </template>
           </Card>
           
@@ -223,35 +216,6 @@
               </Galleria>
             </template>
           </Card>
-          <!-- PDF Notes Viewer -->
-          <Card v-if="selectedSermon.notesFile">
-            <template #title>
-              <span class="text-lg font-semibold flex items-center">
-                <i class="pi pi-file-pdf mr-2"></i>
-                Sermon Notes
-              </span>
-            </template>
-            <template #content>
-              <div class="space-y-4">
-                <div class="flex justify-between items-center">
-                  <p class="text-gray-600">View or download the sermon notes PDF</p>
-                  <Button 
-                    icon="pi pi-download" 
-                    label="Download PDF"
-                    size="small"
-                    outlined
-                    @click="downloadPDF"
-                  />
-                </div>
-                <iframe 
-                  :src="`/uploads/${selectedSermon.notesFile}`"
-                  class="w-full h-96 border rounded"
-                  title="Sermon Notes PDF"
-                />
-              </div>
-            </template>
-          </Card>
-          
           <!-- Notes Text -->
           <Card v-if="selectedSermon.notes">
             <template #title>
@@ -453,17 +417,6 @@ const formatDate = (dateString: string) => {
     month: 'long',
     day: 'numeric'
   })
-}
-
-const downloadPDF = () => {
-  if (selectedSermon.value?.notesFile) {
-    const link = document.createElement('a')
-    link.href = `/uploads/${selectedSermon.value.notesFile}`
-    link.download = `${selectedSermon.value.title} - Notes.pdf`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
 }
 
 // Social Media Sharing Functions

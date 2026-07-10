@@ -437,22 +437,6 @@
               </div>
               
               <div class="field">
-                <label for="audioFile" class="block text-sm font-medium mb-2">Audio File *</label>
-                <FileUpload 
-                  id="audioFile"
-                  ref="audioUpload"
-                  mode="basic" 
-                  accept="audio/*"
-                  :maxFileSize="100000000"
-                  customUpload
-                  @select="onAudioSelect"
-                  :class="{ 'p-invalid': errors.audioFile }"
-                  chooseLabel="Choose Audio File"
-                />
-                <small v-if="errors.audioFile" class="p-error">{{ errors.audioFile }}</small>
-              </div>
-              
-              <div class="field">
                 <label for="imageFile" class="block text-sm font-medium mb-2">Image (Optional)</label>
                 <FileUpload 
                   id="imageFile"
@@ -484,19 +468,6 @@
                 </small>
               </div>
 
-              <div class="field">
-                <label for="notesFile" class="block text-sm font-medium mb-2">Sermon Notes PDF (Optional)</label>
-                <FileUpload 
-                  id="notesFile"
-                  ref="notesUpload"
-                  mode="basic" 
-                  accept="application/pdf"
-                  :maxFileSize="50000000"
-                  customUpload
-                  @select="onNotesSelect"
-                  chooseLabel="Choose PDF Notes"
-                />
-              </div>
               
               <div class="md:col-span-2">
                 <Button 
@@ -579,12 +550,6 @@
                       </a>
                     </div>
                   
-                    <div class="mt-2">
-                      <audio controls class="w-full max-w-md">
-                        <source :src="`/uploads/${sermon.audioFile}`" type="audio/mpeg">
-                        Your browser does not support the audio element.
-                      </audio>
-                    </div>
                   </div>
                 </div>
                 
@@ -1118,7 +1083,6 @@ const selectedEditMusicFile = ref<File | null>(null)
 const errors = ref({
   title: '',
   date: '',
-  audioFile: '',
   youtubeId: ''
 })
 
@@ -1166,7 +1130,7 @@ const validateYoutubeId = (youtubeId: string) => {
 }
 
 const validateForm = () => {
-  errors.value = { title: '', date: '', audioFile: '', youtubeId: '' }
+  errors.value = { title: '', date: '', youtubeId: '' }
   
   if (!newSermon.value.title.trim()) {
     errors.value.title = 'Title is required'
@@ -1176,20 +1140,11 @@ const validateForm = () => {
     errors.value.date = 'Date is required'
   }
   
-  // if (!selectedAudioFile.value) {
-  //   errors.value.audioFile = 'Audio file is required'
-  // }
-  
   if (newSermon.value.youtubeId && !validateYoutubeId(newSermon.value.youtubeId)) {
     errors.value.youtubeId = 'Invalid YouTube ID. Must be 11 characters (letters, numbers, hyphens, underscores)'
   }
   
   return Object.values(errors.value).every(error => error === '')
-}
-
-const onAudioSelect = (event: any) => {
-  selectedAudioFile.value = event.files[0]
-  errors.value.audioFile = ''
 }
 
 const onImageSelect = (event: any) => {
