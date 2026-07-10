@@ -66,10 +66,6 @@ class SermonController {
         return res.status(400).json({ error: 'Title and date are required' })
       }
 
-      if (!req.files || !req.files.audioFile) {
-        return res.status(400).json({ error: 'Audio file is required' })
-      }
-
       // Validate YouTube ID if provided
       if (youtubeId && !this.validateYoutubeId(youtubeId)) {
         return res.status(400).json({ error: 'Invalid YouTube ID format. Must be 11 characters containing only letters, numbers, hyphens, and underscores.' })
@@ -83,9 +79,9 @@ class SermonController {
         notes,
         seoTitle,
         seoDescription,
-        audioFile: req.files.audioFile[0].filename,
-        imageFile: req.files.imageFile ? req.files.imageFile[0].filename : null,
-        notesFile: req.files.notesFile ? req.files.notesFile[0].filename : null
+        audioFile: req.files?.audioFile ? req.files.audioFile[0].filename : null,
+        imageFile: req.files?.imageFile ? req.files.imageFile[0].filename : null,
+        notesFile: req.files?.notesFile ? req.files.notesFile[0].filename : null
       }
 
       // Handle multiple images if provided
