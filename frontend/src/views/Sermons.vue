@@ -130,24 +130,6 @@
             </template>
           </Card>
           
-          <!-- Audio Player -->
-         <!--// <Card>
-            <template #title>
-              <span class="text-lg font-semibold flex items-center">
-                <i class="pi pi-play mr-2"></i>
-                Audio
-              </span>
-            </template>
-            <template #content>
-              <audio controls ref="audioPlayer" class="w-full">
-                <source :src="`/uploads/${selectedSermon.audioFile}`" type="audio/mpeg">
-                <source :src="`/uploads/${selectedSermon.audioFile}`" type="audio/wav">
-                <source :src="`/uploads/${selectedSermon.audioFile}`" type="audio/ogg">
-                Your browser does not support the audio element.
-              </audio>
-            </template>
-          </Card>//-->
-          
           <!-- YouTube Video Player -->
           <Card v-if="validatedYoutubeId">
             <template #content>
@@ -264,7 +246,7 @@ interface Sermon {
   title: string
   date: string
   description?: string
-  audioFile: string
+  audioFile?: string | null
   imageFile?: string
   notesFile?: string
   youtubeId?: string
@@ -275,8 +257,6 @@ interface Sermon {
   createdAt: string
   images?: SermonImage[]
 }
-
-const audioPlayer = useTemplateRef<HTMLAudioElement>('audioPlayer')
 
 // Router
 const route = useRoute()
@@ -387,10 +367,6 @@ const selectSermon = (sermon: Sermon) => {
     router.push(`/sermons/${sermon.id}`)
   }
   
-  if (audioPlayer.value) {
-    audioPlayer.value.load();
-    audioPlayer.value.play(); 
-  }
   window.scrollTo({ top: 0, behavior: 'smooth' });
   updateSermonMetadata(sermon)
 }

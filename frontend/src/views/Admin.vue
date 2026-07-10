@@ -960,7 +960,7 @@ interface Sermon {
   title: string
   date: string
   description?: string
-  audioFile: string
+  audioFile?: string | null
   imageFile?: string
   notesFile?: string
   youtubeId?: string

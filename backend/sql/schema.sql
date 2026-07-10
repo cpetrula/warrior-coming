@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS sermons (
   title VARCHAR(255) NOT NULL,
   date DATE NOT NULL,
   description TEXT,
-  audio_file VARCHAR(255) NOT NULL,
+  audio_file VARCHAR(255),
   image_file VARCHAR(255),
   notes_file VARCHAR(255),
   youtube_id VARCHAR(255),
