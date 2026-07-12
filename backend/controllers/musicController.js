@@ -97,6 +97,10 @@ class MusicController {
   async reorderMusic(req, res) {
     try {
       const { musicIds } = req.body
+
+      if (!Array.isArray(musicIds) || musicIds.length === 0) {
+        return res.status(400).json({ error: 'musicIds must be a non-empty array' })
+      }
       
       await Music.reorder(musicIds)
       res.json({ success: true })

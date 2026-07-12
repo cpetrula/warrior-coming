@@ -280,7 +280,25 @@
         <!-- Music List -->
         <Card>
           <template #title>
-            <span>Music Library ({{ music.length }} items)</span>
+            <div class="flex justify-between items-center gap-3 flex-wrap">
+              <span>Music Library ({{ music.length }} items)</span>
+              <div v-if="music.length > 0" class="flex gap-2">
+                <Button
+                  label="Reset"
+                  severity="secondary"
+                  outlined
+                  @click="resetMusicOrder"
+                  :disabled="!musicOrderDirty || savingMusicOrder"
+                />
+                <Button
+                  label="Save Order"
+                  icon="pi pi-check"
+                  @click="saveMusicOrder"
+                  :loading="savingMusicOrder"
+                  :disabled="!musicOrderDirty || savingMusicOrder"
+                />
+              </div>
+            </div>
           </template>
           <template #content>
             <div v-if="loadingMusic" class="flex justify-center py-8">
@@ -291,40 +309,53 @@
               No music uploaded yet. Use the form above to upload your first music file.
             </div>
             
-            <div v-else class="space-y-4">
-              <div 
-                v-for="musicItem in music" 
-                :key="musicItem.id"
-                class="flex items-center justify-between p-4 border rounded-lg bg-white"
-              >
-                <div class="flex-1">
-                  <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ musicItem.title }}</h3>
-                  
-                  <div class="mt-2">
-                    <audio controls class="w-full max-w-md">
-                      <source :src="`/uploads/${musicItem.musicFile}`" type="audio/mpeg">
-                      Your browser does not support the audio element.
-                    </audio>
+            <div v-else>
+              <p class="text-sm text-gray-500 mb-4">Drag items by the handle to reorder them, then save.</p>
+              <div class="space-y-4">
+                <div 
+                  v-for="(musicItem, index) in music" 
+                  :key="musicItem.id"
+                  class="flex items-center justify-between p-4 border rounded-lg bg-white gap-4"
+                  draggable="true"
+                  @dragstart="onMusicDragStart(index)"
+                  @dragover.prevent
+                  @drop="onMusicDrop(index)"
+                  @dragend="onMusicDragEnd"
+                >
+                  <div class="flex items-center gap-4 flex-1 min-w-0">
+                    <div class="drag-handle" title="Drag to reorder">
+                      <i class="pi pi-bars"></i>
+                    </div>
+                    <div class="order-badge">#{{ index + 1 }}</div>
+                    <div class="flex-1 min-w-0">
+                      <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ musicItem.title }}</h3>
+                      <div class="mt-2">
+                        <audio controls class="w-full max-w-md">
+                          <source :src="`/uploads/${musicItem.musicFile}`" type="audio/mpeg">
+                          Your browser does not support the audio element.
+                        </audio>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                
-                <div class="flex gap-2 ml-4">
-                  <Button 
-                    icon="pi pi-pencil" 
-                    size="small"
-                    outlined
-                    @click="editMusic(musicItem)"
-                    :aria-label="`Edit ${musicItem.title}`"
-                  />
-                  <Button 
-                    icon="pi pi-trash" 
-                    size="small"
-                    severity="danger"
-                    outlined
-                    @click="deleteMusic(musicItem.id)"
-                    :loading="deletingMusic === musicItem.id"
-                    :aria-label="`Delete ${musicItem.title}`"
-                  />
+                  
+                  <div class="flex gap-2 ml-4">
+                    <Button 
+                      icon="pi pi-pencil" 
+                      size="small"
+                      outlined
+                      @click="editMusic(musicItem)"
+                      :aria-label="`Edit ${musicItem.title}`"
+                    />
+                    <Button 
+                      icon="pi pi-trash" 
+                      size="small"
+                      severity="danger"
+                      outlined
+                      @click="deleteMusic(musicItem.id)"
+                      :loading="deletingMusic === musicItem.id"
+                      :aria-label="`Delete ${musicItem.title}`"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -486,14 +517,32 @@
         <!-- Sermons List -->
         <Card>
           <template #title>
-            <div class="flex justify-between items-center">
+            <div class="flex justify-between items-center gap-3 flex-wrap">
               <span>Uploaded Sermons</span>
-              <Button 
-                icon="pi pi-refresh" 
-                @click="loadSermons"
-                :loading="loading"
-                text
-              />
+              <div class="flex gap-2">
+                <Button 
+                  icon="pi pi-refresh" 
+                  @click="loadSermons"
+                  :loading="loading"
+                  text
+                />
+                <Button
+                  v-if="sermons.length > 0"
+                  label="Reset"
+                  severity="secondary"
+                  outlined
+                  @click="resetSermonOrder"
+                  :disabled="!sermonOrderDirty || savingSermonOrder"
+                />
+                <Button
+                  v-if="sermons.length > 0"
+                  label="Save Order"
+                  icon="pi pi-check"
+                  @click="saveSermonOrder"
+                  :loading="savingSermonOrder"
+                  :disabled="!sermonOrderDirty || savingSermonOrder"
+                />
+              </div>
             </div>
           </template>
           <template #content>
@@ -505,71 +554,78 @@
               No sermons uploaded yet.
             </div>
             
-            <div v-else class="space-y-4">
-              <div v-for="(sermon, index) in sermons" :key="sermon.id" class="sermon-item flex items-center justify-between p-4 border rounded w-full bg-white">
-                <div class="flex items-center space-x-4">
-                  <!-- Primary image (legacy) -->
-                  <div v-if="sermon.imageFile" class="sermon-image">
-                    <Image 
-                      :src="`/uploads/${sermon.imageFile}`" 
-                      alt="Sermon Image"
-                      width="60"
-                      height="60"
-                      class="rounded"
-                    />
-                  </div>
-                  <!-- Multiple images preview -->
-                  <div v-else-if="sermon.images && sermon.images.length > 0" class="sermon-images flex space-x-2">
-                    <div v-for="(image, idx) in sermon.images.slice(0, 3)" :key="image.id" class="relative">
+            <div v-else>
+              <p class="text-sm text-gray-500 mb-4">Drag items by the handle to reorder them, then save.</p>
+              <div class="space-y-4">
+                <div v-for="(sermon, index) in sermons" :key="sermon.id" class="sermon-item flex items-center justify-between p-4 border rounded w-full bg-white gap-4" draggable="true" @dragstart="onSermonDragStart(index)" @dragover.prevent @drop="onSermonDrop(index)" @dragend="onSermonDragEnd">
+                  <div class="flex items-center space-x-4 flex-1 min-w-0">
+                    <div class="drag-handle" title="Drag to reorder">
+                      <i class="pi pi-bars"></i>
+                    </div>
+                    <div class="order-badge">#{{ index + 1 }}</div>
+                    <!-- Primary image (legacy) -->
+                    <div v-if="sermon.imageFile" class="sermon-image">
                       <Image 
-                        :src="`/uploads/${image.imageFile}`" 
+                        :src="`/uploads/${sermon.imageFile}`" 
                         alt="Sermon Image"
                         width="60"
                         height="60"
                         class="rounded"
                       />
-                      <div v-if="idx === 2 && sermon.images.length > 3" 
-                           class="absolute inset-0 bg-black bg-opacity-50 rounded flex items-center justify-center text-white text-sm">
-                        +{{ sermon.images.length - 3 }}
+                    </div>
+                    <!-- Multiple images preview -->
+                    <div v-else-if="sermon.images && sermon.images.length > 0" class="sermon-images flex space-x-2">
+                      <div v-for="(image, idx) in sermon.images.slice(0, 3)" :key="image.id" class="relative">
+                        <Image 
+                          :src="`/uploads/${image.imageFile}`" 
+                          alt="Sermon Image"
+                          width="60"
+                          height="60"
+                          class="rounded"
+                        />
+                        <div v-if="idx === 2 && sermon.images.length > 3" 
+                             class="absolute inset-0 bg-black bg-opacity-50 rounded flex items-center justify-center text-white text-sm">
+                          +{{ sermon.images.length - 3 }}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div v-else class="sermon-placeholder w-15 h-15 bg-gray-300 rounded flex items-center justify-center">
-                    <i class="pi pi-image text-gray-500"></i>
+                    <div v-else class="sermon-placeholder w-15 h-15 bg-gray-300 rounded flex items-center justify-center">
+                      <i class="pi pi-image text-gray-500"></i>
+                    </div>
+                    
+                    <div class="sermon-details flex-1 min-w-0">
+                      <h3 class="font-bold text-lg text-black">{{ sermon.title }}</h3>
+                      <p class="text-sm text-gray-600">{{ formatDate(sermon.date) }}</p>
+                      <div v-if="sermon.description" class="text-sm text-gray-500 mt-1">
+                        {{ sermon.description.length > 100 ? sermon.description.substring(0, 100) + '...' : sermon.description }}
+                      </div>
+                      <div v-if="sermon.notesFile" class="mt-1">
+                        <a :href="`/uploads/${sermon.notesFile}`" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm">
+                          <i class="pi pi-file-pdf mr-1"></i>View Sermon Notes (PDF)
+                        </a>
+                      </div>
+                    
+                    </div>
                   </div>
                   
-                  <div class="sermon-details flex-1">
-                    <h3 class="font-bold text-lg text-black">{{ sermon.title }}</h3>
-                    <p class="text-sm text-gray-600">{{ formatDate(sermon.date) }}</p>
-                    <div v-if="sermon.description" class="text-sm text-gray-500 mt-1">
-                      {{ sermon.description.length > 100 ? sermon.description.substring(0, 100) + '...' : sermon.description }}
-                    </div>
-                    <div v-if="sermon.notesFile" class="mt-1">
-                      <a :href="`/uploads/${sermon.notesFile}`" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm">
-                        <i class="pi pi-file-pdf mr-1"></i>View Sermon Notes (PDF)
-                      </a>
-                    </div>
-                  
+                  <div class="sermon-actions flex space-x-2">
+                    <Button 
+                      icon="pi pi-pencil" 
+                      severity="secondary"
+                      rounded
+                      @click="startEdit(sermon)"
+                      :disabled="editing !== null"
+                      title="Edit sermon"
+                    />
+                    <Button 
+                      icon="pi pi-trash" 
+                      severity="danger"
+                      rounded
+                      @click="deleteSermon(sermon.id)"
+                      :loading="deleting === sermon.id"
+                      title="Delete sermon"
+                    />
                   </div>
-                </div>
-                
-                <div class="sermon-actions flex space-x-2">
-                  <Button 
-                    icon="pi pi-pencil" 
-                    severity="secondary"
-                    rounded
-                    @click="startEdit(sermon)"
-                    :disabled="editing !== null"
-                    title="Edit sermon"
-                  />
-                  <Button 
-                    icon="pi pi-trash" 
-                    severity="danger"
-                    rounded
-                    @click="deleteSermon(sermon.id)"
-                    :loading="deleting === sermon.id"
-                    title="Delete sermon"
-                  />
                 </div>
               </div>
             </div>
@@ -938,7 +994,6 @@ import Calendar from 'primevue/calendar'
 import Textarea from 'primevue/textarea'
 import FileUpload from 'primevue/fileupload'
 import Button from 'primevue/button'
-import OrderList from 'primevue/orderlist'
 import Image from 'primevue/image'
 import ProgressSpinner from 'primevue/progressspinner'
 import Dialog from 'primevue/dialog'
@@ -1008,6 +1063,8 @@ const loadingMusic = ref(false)
 const uploading = ref(false)
 const uploadingBlog = ref(false)
 const uploadingMusic = ref(false)
+const savingSermonOrder = ref(false)
+const savingMusicOrder = ref(false)
 const deleting = ref<string | null>(null)
 const deletingBlog = ref<string | null>(null)
 const deletingMusic = ref<string | null>(null)
@@ -1018,6 +1075,10 @@ const showMusicForm = ref(false)
 const showEditDialog = ref(false)
 const showEditBlogDialog = ref(false)
 const showEditMusicDialog = ref(false)
+const initialSermonOrder = ref<string[]>([])
+const initialMusicOrder = ref<string[]>([])
+const draggedSermonIndex = ref<number | null>(null)
+const draggedMusicIndex = ref<number | null>(null)
 
 const newSermon = ref({
   title: '',
@@ -1117,6 +1178,14 @@ const editErrors = ref({
 const isFormValid = computed(() => {
   return newSermon.value.title.trim() !== '' && 
          newSermon.value.date !== null 
+})
+
+const sermonOrderDirty = computed(() => {
+  return sermons.value.map(sermon => sermon.id).join(',') !== initialSermonOrder.value.join(',')
+})
+
+const musicOrderDirty = computed(() => {
+  return music.value.map(item => item.id).join(',') !== initialMusicOrder.value.join(',')
 })
 
 // Methods
@@ -1227,6 +1296,7 @@ const loadSermons = async () => {
   try {
     const response = await axios.get('/api/sermons')
     sermons.value = response.data
+    initialSermonOrder.value = response.data.map((sermon: Sermon) => sermon.id)
   } catch (error) {
     console.error('Error loading sermons:', error)
   } finally {
@@ -1234,14 +1304,45 @@ const loadSermons = async () => {
   }
 }
 
-const updateOrder = async () => {
+const moveItem = <T>(items: T[], fromIndex: number, toIndex: number) => {
+  const updated = [...items]
+  const [movedItem] = updated.splice(fromIndex, 1)
+  updated.splice(toIndex, 0, movedItem)
+  return updated
+}
+
+const onSermonDragStart = (index: number) => {
+  draggedSermonIndex.value = index
+}
+
+const onSermonDrop = (index: number) => {
+  if (draggedSermonIndex.value === null || draggedSermonIndex.value === index) return
+  sermons.value = moveItem(sermons.value, draggedSermonIndex.value, index)
+  draggedSermonIndex.value = null
+}
+
+const onSermonDragEnd = () => {
+  draggedSermonIndex.value = null
+}
+
+const saveSermonOrder = async () => {
   try {
+    savingSermonOrder.value = true
     const sermonIds = sermons.value.map(sermon => sermon.id)
     await axios.patch('/api/sermons/reorder', { sermonIds })
+    initialSermonOrder.value = [...sermonIds]
+    await loadSermons()
   } catch (error) {
-    console.error('Error updating order:', error)
-    await loadSermons() // Reload on error
+    console.error('Error updating sermon order:', error)
+    alert('Failed to save sermon order. Please try again.')
+    await loadSermons()
+  } finally {
+    savingSermonOrder.value = false
   }
+}
+
+const resetSermonOrder = async () => {
+  await loadSermons()
 }
 
 const deleteSermon = async (id: string) => {
@@ -1579,11 +1680,46 @@ const loadMusic = async () => {
     loadingMusic.value = true
     const response = await axios.get('/api/music')
     music.value = response.data
+    initialMusicOrder.value = response.data.map((item: Music) => item.id)
   } catch (error) {
     console.error('Error loading music:', error)
   } finally {
     loadingMusic.value = false
   }
+}
+
+const onMusicDragStart = (index: number) => {
+  draggedMusicIndex.value = index
+}
+
+const onMusicDrop = (index: number) => {
+  if (draggedMusicIndex.value === null || draggedMusicIndex.value === index) return
+  music.value = moveItem(music.value, draggedMusicIndex.value, index)
+  draggedMusicIndex.value = null
+}
+
+const onMusicDragEnd = () => {
+  draggedMusicIndex.value = null
+}
+
+const saveMusicOrder = async () => {
+  try {
+    savingMusicOrder.value = true
+    const musicIds = music.value.map(item => item.id)
+    await axios.patch('/api/music/reorder', { musicIds })
+    initialMusicOrder.value = [...musicIds]
+    await loadMusic()
+  } catch (error) {
+    console.error('Error updating music order:', error)
+    alert('Failed to save music order. Please try again.')
+    await loadMusic()
+  } finally {
+    savingMusicOrder.value = false
+  }
+}
+
+const resetMusicOrder = async () => {
+  await loadMusic()
 }
 
 const createMusic = async () => {
@@ -1763,7 +1899,7 @@ const checkAuthState = () => {
 onMounted(async () => {
   checkAuthState()
   if (isAuthenticated.value) {
-    loadSermons()
+    await loadSermons()
     await loadBlogs()
     await loadMusic()
   }
@@ -1793,6 +1929,28 @@ onMounted(async () => {
 
 .sermon-item:hover {
   background: #f9fafb;
+}
+
+.drag-handle {
+  cursor: grab;
+  color: #6b7280;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+}
+
+.order-badge {
+  min-width: 2.5rem;
+  height: 2rem;
+  padding: 0 0.5rem;
+  border-radius: 9999px;
+  background: #eef2ff;
+  color: #3730a3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
 }
 
 .field {

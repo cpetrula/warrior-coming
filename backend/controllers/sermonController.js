@@ -160,6 +160,10 @@ class SermonController {
   async reorderSermons(req, res) {
     try {
       const { sermonIds } = req.body
+
+      if (!Array.isArray(sermonIds) || sermonIds.length === 0) {
+        return res.status(400).json({ error: 'sermonIds must be a non-empty array' })
+      }
       
       await Sermon.reorder(sermonIds)
       res.json({ success: true })
