@@ -14,57 +14,48 @@
     
     <!-- Main Content -->
     <div v-else class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- Sermons List -->
-      <div class="lg:col-span-1">
-        <Card class="h-fit">
-          <template #title>
-            <h1>Sermons</h1>
-          </template>
+      <!-- Selected Sermon Player -->
+      <div class="lg:col-span-2 lg:order-2 order-1">
+        <Card v-if="selectedSermon" class="mb-6 mobile-sermon-selector lg:hidden">
           <template #content>
             <div class="space-y-3">
-              <div 
-                v-for="sermon in sermons" 
-                :key="sermon.id"
-                class="sermon-item p-4 border rounded cursor-pointer transition-colors"
-                :class="{ 
-                  'bg-blue-50 border-blue-300': selectedSermon?.id === sermon.id,
-                  'hover:bg-gray-50 border-gray-200': selectedSermon?.id !== sermon.id
-                }"
-                @click="selectSermon(sermon)"
-              >
-                <div class="flex items-start space-x-3">
-                  <!-- Sermon Image or Placeholder -->
-                  <div class="flex-shrink-0">
-                    <Image 
-                      v-if="sermon.imageFile"
-                      :src="`/uploads/${sermon.imageFile}`" 
-                      alt="Sermon Image"
-                      width="60"
-                      height="60"
-                      class="rounded"
-                    />
-                    <div v-else class="w-15 h-15 bg-gray-300 rounded flex items-center justify-center">
-                      <i class="pi pi-image text-gray-500"></i>
-                    </div>
-                  </div>
-                  
-                  <!-- Sermon Details -->
-                  <div class="flex-1 min-w-0">
-                    <h3 class="font-semibold text-sm text-gray-900 truncate">{{ sermon.title }}</h3>
-                    <p class="text-xs text-gray-500 mt-1">{{ formatDate(sermon.date) }}</p>
-                    <p v-if="sermon.description" class="text-xs text-gray-600 mt-1 line-clamp-2">
-                      {{ sermon.description.length > 80 ? sermon.description.substring(0, 80) + '...' : sermon.description }}
-                    </p>
-                  </div>
-                </div>
+              <div>
+                <label for="mobile-sermon-select" class="block text-sm font-medium text-gray-300 mb-2">Choose Sermon</label>
+                <select
+                  id="mobile-sermon-select"
+                  class="mobile-sermon-select"
+                  :value="selectedSermon.id"
+                  @change="onMobileSermonChange"
+                >
+                  <option v-for="sermon in sermons" :key="sermon.id" :value="sermon.id">
+                    {{ sermon.title }} — {{ formatDate(sermon.date) }}
+                  </option>
+                </select>
+              </div>
+              <div class="mobile-sermon-nav">
+                <Button
+                  label="Prev"
+                  icon="pi pi-chevron-left"
+                  severity="secondary"
+                  outlined
+                  @click="goToPrevSermon"
+                  :disabled="selectedSermonIndex <= 0"
+                />
+                <p class="text-sm text-gray-400 mobile-sermon-counter">Showing sermon {{ selectedSermonIndex + 1 }} of {{ sermons.length }}</p>
+                <Button
+                  label="Next"
+                  icon="pi pi-chevron-right"
+                  iconPos="right"
+                  severity="secondary"
+                  outlined
+                  @click="goToNextSermon"
+                  :disabled="selectedSermonIndex === -1 || selectedSermonIndex >= sermons.length - 1"
+                />
               </div>
             </div>
           </template>
         </Card>
-      </div>
-      
-      <!-- Selected Sermon Player -->
-      <div class="lg:col-span-2">
+
         <div v-if="selectedSermon" class="space-y-6">
           <!-- Sermon Header -->
           <Card>
@@ -219,6 +210,53 @@
           <p class="text-gray-500">Choose a sermon from the list to play audio and view notes</p>
         </div>
       </div>
+
+      <!-- Sermons List -->
+      <div class="lg:col-span-1 lg:order-1 order-2 hidden lg:block">
+        <Card class="h-fit lg:sticky lg:top-6">
+          <template #title>
+            <h1>Sermons</h1>
+          </template>
+          <template #content>
+            <div class="space-y-3 max-h-[75vh] overflow-y-auto pr-1">
+              <div 
+                v-for="sermon in sermons" 
+                :key="sermon.id"
+                class="sermon-item p-4 border rounded cursor-pointer transition-colors"
+                :class="{ 
+                  'bg-blue-50 border-blue-300': selectedSermon?.id === sermon.id,
+                  'hover:bg-gray-50 border-gray-200': selectedSermon?.id !== sermon.id
+                }"
+                @click="selectSermon(sermon)"
+              >
+                <div class="flex items-start space-x-3">
+                  <div class="flex-shrink-0">
+                    <Image 
+                      v-if="sermon.imageFile"
+                      :src="`/uploads/${sermon.imageFile}`" 
+                      alt="Sermon Image"
+                      width="60"
+                      height="60"
+                      class="rounded"
+                    />
+                    <div v-else class="w-15 h-15 bg-gray-300 rounded flex items-center justify-center">
+                      <i class="pi pi-image text-gray-500"></i>
+                    </div>
+                  </div>
+                  
+                  <div class="flex-1 min-w-0">
+                    <h3 class="font-semibold text-sm text-gray-900 truncate">{{ sermon.title }}</h3>
+                    <p class="text-xs text-gray-500 mt-1">{{ formatDate(sermon.date) }}</p>
+                    <p v-if="sermon.description" class="text-xs text-gray-600 mt-1 line-clamp-2">
+                      {{ sermon.description.length > 80 ? sermon.description.substring(0, 80) + '...' : sermon.description }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+        </Card>
+      </div>
     </div>
   </div>
 </template>
@@ -284,6 +322,11 @@ const responsiveOptions = ref([
 ])
 
 // Computed properties
+const selectedSermonIndex = computed(() => {
+  if (!selectedSermon.value) return -1
+  return sermons.value.findIndex(sermon => sermon.id === selectedSermon.value?.id)
+})
+
 // Validate and sanitize YouTube ID
 const validatedYoutubeId = computed(() => {
   if (!selectedSermon.value?.youtubeId) return null
@@ -367,8 +410,28 @@ const selectSermon = (sermon: Sermon) => {
     router.push(`/sermons/${sermon.id}`)
   }
   
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top: 0, behavior: 'smooth' })
   updateSermonMetadata(sermon)
+}
+
+const onMobileSermonChange = (event: Event) => {
+  const target = event.target as HTMLSelectElement
+  const sermon = sermons.value.find(item => item.id === target.value)
+  if (sermon) {
+    selectSermon(sermon)
+  }
+}
+
+const goToPrevSermon = () => {
+  if (selectedSermonIndex.value > 0) {
+    selectSermon(sermons.value[selectedSermonIndex.value - 1])
+  }
+}
+
+const goToNextSermon = () => {
+  if (selectedSermonIndex.value >= 0 && selectedSermonIndex.value < sermons.value.length - 1) {
+    selectSermon(sermons.value[selectedSermonIndex.value + 1])
+  }
 }
 
 const updateSermonMetadata = (sermon: Sermon) => {
@@ -540,6 +603,36 @@ iframe {
   iframe {
     height: 300px;
   }
+}
+
+.mobile-sermon-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.mobile-sermon-counter {
+  margin: 0;
+  flex: 1;
+  text-align: center;
+}
+
+.mobile-sermon-select {
+  width: 100%;
+  background: #111827;
+  color: #f9fafb;
+  border: 1px solid #374151;
+  border-radius: 0.5rem;
+  padding: 0.875rem 1rem;
+  font-size: 1rem;
+}
+
+.mobile-sermon-select:focus {
+  outline: none;
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
 }
 
 /* Social Media Button Styles */
