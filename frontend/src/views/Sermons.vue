@@ -58,14 +58,9 @@
 
         <div v-if="selectedSermon" class="space-y-6">
           <!-- Sermon Header -->
-          <Card>
+          <Card class="sermon-card">
             <template #title>
-                             
-                <div class="grid grid-cols-2 auto-cols-max">
-                  <h2 class="text-xl font-bold text-gray-200">{{ selectedSermon.title }}</h2>
-                  <!-- <p class="text-gray-400 text-right">{{ formatDate(selectedSermon.date) }}</p> -->
-                </div>
-             
+              <h2 class="text-xl font-bold text-gray-200 sermon-title">{{ selectedSermon.title }}</h2>
             </template>
             <template #content>
               <p v-if="selectedSermon.description" class="text-gray-300 pb-4">
@@ -73,9 +68,9 @@
               </p>
               
               <!-- Social Media Sharing -->
-              <div class="flex items-center gap-3 mb-4 p-3 bg-gray-50 rounded">
+              <div class="sermon-share-bar">
                 <span class="text-sm font-medium text-gray-600">Share this sermon:</span>
-                <div class="flex gap-2">
+                <div class="flex gap-2 flex-wrap">
                   <Button
                     icon="pi pi-facebook"
                     size="small"
@@ -122,13 +117,25 @@
           </Card>
           
           <!-- YouTube Video Player -->
-          <Card v-if="validatedYoutubeId">
+          <Card v-if="validatedYoutubeId" class="sermon-card">
             <template #content>
-              <div class="youtube-player-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+              <div class="video-card-header">
+                <span class="text-sm font-medium text-gray-300">Watch Sermon Video</span>
+                <div class="flex gap-2">
+                  <Button
+                    label="Fullscreen"
+                    icon="pi pi-window-maximize"
+                    size="small"
+                    outlined
+                    @click="openYoutubeFullscreen"
+                  />
+                </div>
+              </div>
+              <div class="youtube-player-container">
                 <iframe 
-                  :src="`https://www.youtube.com/embed/${validatedYoutubeId}`"
-                  style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  :src="youtubeEmbedUrl"
+                  class="youtube-iframe"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowfullscreen
                   :title="`${selectedSermon.title} - YouTube Video`"
                 />
@@ -464,10 +471,25 @@ const getSermonUrl = () => {
   return `${baseUrl}/sermons/${selectedSermon.value?.id}`
 }
 
+const youtubeEmbedUrl = computed(() => {
+  if (!validatedYoutubeId.value) return ''
+  return `https://www.youtube.com/embed/${validatedYoutubeId.value}`
+})
+
+const youtubeWatchUrl = computed(() => {
+  if (!validatedYoutubeId.value) return ''
+  return `https://www.youtube.com/watch?v=${validatedYoutubeId.value}`
+})
+
 const getShareText = () => {
   const title = selectedSermon.value?.title || 'Sermon'
   const date = selectedSermon.value?.date ? ` from ${formatDate(selectedSermon.value.date)}` : ''
   return `Check out this sermon: "${title}"${date} from Warrior Coming`
+}
+
+const openYoutubeFullscreen = () => {
+  if (!youtubeWatchUrl.value) return
+  window.open(youtubeWatchUrl.value, '_blank', 'noopener,noreferrer')
 }
 
 const shareOnFacebook = () => {
@@ -546,6 +568,68 @@ watch(() => route.params.id, (newId) => {
   background: linear-gradient(to bottom, #000, #1a1a1a);
 }
 
+:deep(.sermon-card.p-card),
+:deep(.mobile-sermon-selector.p-card) {
+  background: #111827;
+  border: 1px solid #1f2937;
+  color: #f9fafb;
+}
+
+:deep(.sermon-card .p-card-title),
+:deep(.sermon-card .p-card-content),
+:deep(.mobile-sermon-selector .p-card-content) {
+  color: inherit;
+}
+
+.sermon-title {
+  width: 100%;
+  display: block;
+}
+
+.sermon-share-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: #f3f4f6;
+  border-radius: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.video-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.youtube-player-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  background: #000;
+}
+
+.youtube-iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.sermons-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #000, #1a1a1a);
+}
+
 .sermon-item {
   transition: all 0.2s ease;
 }
@@ -568,9 +652,6 @@ audio {
 }
 
 /* PDF viewer responsive */
-iframe {
-  min-height: 400px;
-}
 
 /* Custom Galleria styling */
 .custom-galleria {
