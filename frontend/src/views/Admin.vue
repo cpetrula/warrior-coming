@@ -557,7 +557,7 @@
             <div v-else>
               <p class="text-sm text-gray-500 mb-4">Drag items by the handle to reorder them, then save.</p>
               <div class="space-y-4">
-                <div v-for="(sermon, index) in sermons" :key="sermon.id" class="sermon-item flex items-center justify-between p-4 border rounded w-full bg-white gap-4" draggable="true" @dragstart="onSermonDragStart(index)" @dragover.prevent @drop="onSermonDrop(index)" @dragend="onSermonDragEnd">
+                <div v-for="(sermon, index) in sermons" :key="sermon.id" class="sermon-item flex items-center justify-between p-4 border rounded w-full bg-white gap-4" draggable="true" @dragstart="onSermonDragStart(index, $event)" @dragover.prevent @drop="onSermonDrop(index)" @dragend="onSermonDragEnd">
                   <div class="flex items-center space-x-4 flex-1 min-w-0">
                     <div class="drag-handle" title="Drag to reorder">
                       <i class="pi pi-bars"></i>
@@ -603,12 +603,12 @@
                     </div>
                   </div>
                   
-                  <div class="sermon-actions flex space-x-2">
+                  <div class="sermon-actions flex space-x-2" @mousedown.stop @click.stop>
                     <Button 
                       icon="pi pi-pencil" 
                       severity="secondary"
                       rounded
-                      @click="startEdit(sermon)"
+                      @click.stop="startEdit(sermon)"
                       :disabled="editing !== null"
                       title="Edit sermon"
                     />
@@ -616,7 +616,7 @@
                       icon="pi pi-trash" 
                       severity="danger"
                       rounded
-                      @click="deleteSermon(sermon.id)"
+                      @click.stop="deleteSermon(sermon.id)"
                       :loading="deleting === sermon.id"
                       title="Delete sermon"
                     />
@@ -1279,7 +1279,15 @@ const moveItem = <T>(items: T[], fromIndex: number, toIndex: number) => {
   return updated
 }
 
-const onSermonDragStart = (index: number) => {
+const onSermonDragStart = (index: number, event?: DragEvent) => {
+  const target = event?.target as HTMLElement | null
+  if (target?.closest('.sermon-actions')) {
+    if (event) {
+      event.preventDefault()
+    }
+    draggedSermonIndex.value = null
+    return
+  }
   draggedSermonIndex.value = index
 }
 
